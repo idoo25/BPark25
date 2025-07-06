@@ -24,7 +24,7 @@ import entities.Message.MessageType;
  */
 public class LoginController implements Initializable {
     
-	/** Text field for entering the subscriber's username. */
+	/** Text field for entering the subscriber's user name. */
     @FXML private TextField txtUsername;
     
     /** Text field for entering the subscriber's user code */
@@ -91,9 +91,10 @@ public class LoginController implements Initializable {
     
     
     /**
-     * Sends a request to the server to check parking availability.
+     * Sends a request to the server to retrieve current parking availability.
      * <p>
-     * Triggered from the login screen for convenience or user feedback.
+     * This method is typically triggered from the login screen to provide users who are not yet register
+     * about available parking spots before logging in.
      */
     @FXML
     private void handleCheckAvailability() {
@@ -178,7 +179,7 @@ public class LoginController implements Initializable {
     }
     
     /**
-     * Triggered when the Enter key is pressed in the username or user code fields.
+     * Triggered when the Enter key is pressed in the user name or user code fields.
      * <p>
      * Allows quick login by pressing Enter instead of clicking the login button.
      *
@@ -213,7 +214,7 @@ public class LoginController implements Initializable {
      * <p>
      * Displays a success message and closes the login window.
      *
-     * @param userType The type of user logged in (e.g., subscriber, attendant).
+     * @param userType The type of user logged in (subscriber, attendant , manager).
      */
     public void handleLoginSuccess(String userType) {
         Platform.runLater(() -> {

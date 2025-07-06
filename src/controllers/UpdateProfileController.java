@@ -24,7 +24,7 @@ public class UpdateProfileController{
 	  /**
      * Singleton-static instance reference to this controller.
      * <p>
-     * Used by external classes to update UI elements.
+     *Allows other classes in the application to access this controller and update the UI directly.
      */
 	public static UpdateProfileController instance;
 	

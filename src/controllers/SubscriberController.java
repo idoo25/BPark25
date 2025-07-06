@@ -13,7 +13,7 @@ import java.io.IOException;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.LocalTime;
+
 
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -29,7 +29,7 @@ import entities.ParkingOrder;
  * 
  * This class manages UI interactions such as checking availability,
  * making and canceling reservations,
- * updating profiles, and viewing history. It communicates with the
+ * updating profiles, extend parking and viewing history. It communicates with the
  * server via the BParkClientApp and updates the UI accordingly.
  */
 
@@ -69,8 +69,6 @@ public class SubscriberController implements Initializable {
     /** Main content container to dynamically load views. */
     @FXML private VBox mainContent;
     
-    /** Whether the user requested manual check for spots. */
-    private static boolean manualCheckRequested = false;
     
     /** Observable list for storing and displaying parking history. */
     private ObservableList<ParkingOrder> parkingHistory = FXCollections.observableArrayList();
@@ -86,10 +84,6 @@ public class SubscriberController implements Initializable {
         lblUserInfo.setText("User: " + userName);
     }
     
-    /** Changes the manual check request flag. */
-    public static void setManualCheckRequested(boolean value) {
-        manualCheckRequested = value;
-    }
     
 
     /** Loads the home view UI into the main content area. */
@@ -138,22 +132,38 @@ public class SubscriberController implements Initializable {
 
     
     // ===== Action Handlers =====
-    
+    /**
+     * Handles the action of returning to the home screen.
+     * <p>
+     * This method is typically triggered when the user clicks a "Home" button.
+     * It calls {@code loadHomeView()} to load and display the main home interface
+     * in the central content area.
+     */
     @FXML
     private void handleGoHome() {
         loadHomeView();
     }
     
-    /** Sends a message to check parking availability. */
+    /**
+     * Sends a parking availability request to the server, triggered manually by the user.
+     * <p>
+     * Marks that the availability check was explicitly requested by the user (not automatic),
+     * and then sends a message to the server to retrieve the current number of available spots.
+     * This method is typically used when the user clicks a "Check Availability" button.
+     */
     @FXML
     private void handleShowAvailableSpots() {
-    	setManualCheckRequested(true);
         Message checkMsg = new Message(Message.MessageType.CHECK_PARKING_AVAILABILITY, null);
         BParkClientApp.sendMessage(checkMsg);
         
     }
     
-    /** Sends a message to check parking availability. */
+    /**
+     * Sends a request to the server to retrieve current parking availability.
+     * <p>
+     * This method can be triggered from different parts of the application 
+     * to check how many parking spots are currently available.
+     */
     @FXML
     private void checkParkingAvailability() {
         Message msg = new Message(MessageType.CHECK_PARKING_AVAILABILITY, null);
@@ -162,7 +172,13 @@ public class SubscriberController implements Initializable {
     
 
     
-    /** Sends reservation data to the server. */
+    /**
+     * Handles the process of making a new parking reservation.
+     * <p>
+     * This method checks that both a date and time have been selected by the user.
+     * If valid, it formats the reservation data and sends it to the server
+     * in order to create a new reservation request.
+     */
     @FXML
     private void handleMakeReservation() {
         LocalDate selectedDate = datePickerReservation.getValue();
@@ -183,7 +199,12 @@ public class SubscriberController implements Initializable {
     
 
     
-    /** Cancels a reservation using the code from the page's text field. */
+    /**
+     * Handles reservation cancellation based on the code entered in the text field.
+     * <p>
+     * This method retrieves the reservation code entered by the user, asks for confirmation,
+     * and if confirmed, sends a cancellation request to the server.
+     */
     @FXML
     private void handleCancelReservationFromPage() {
         String code = txtCancelCode.getText();
@@ -258,7 +279,12 @@ public class SubscriberController implements Initializable {
   
     
     
-    /** Loads the Extend Parking view into the mainContent pane. */
+    /**
+     * Loads the Extend Parking screen and displays it in the main content area.
+     * <p>
+     * This method replaces the current view with the Extend Parking UI,
+     * which allows the user to extend an active parking session.
+     */
     @FXML
     private void handleExtendParking() { 
     	   try {
@@ -272,7 +298,12 @@ public class SubscriberController implements Initializable {
    
 
 
-    /** Logs the user out and closes the current window. */
+    /**
+     * Logs the user out and closes the current window.
+     * <p>
+     * This method sends a logout message to the server,
+     * closes the current UI window, and returns control to the login screen.
+     */
     @FXML
     private void handleLogout() {
         // Send logout notification
@@ -287,36 +318,6 @@ public class SubscriberController implements Initializable {
             e.printStackTrace();
         }
     }
-    
-
-    /**
-     * Initializes the reservation form by restricting date selection and populating
-     * the time slot combo box with values from 06:00 to 22:45 at 15-minute intervals.
-     *
-     * <p>
-     * This method is called when the reservation screen is displayed, ensuring users can
-     * only select valid reservation times and dates.
-     * </p>
-     */
-    private void setupReservationForm() {
-        datePickerReservation.setDayCellFactory(picker -> new DateCell() {
-            @Override
-            public void updateItem(LocalDate date, boolean empty) {
-                super.updateItem(date, empty);
-                LocalDate today = LocalDate.now();
-                setDisable(empty || date.isBefore(today.plusDays(1)) || date.isAfter(today.plusDays(7)));
-            }
-        });
-
-        comboTimeSlot.getItems().clear();
-        LocalTime time = LocalTime.of(6, 0); // from 06:00
-        while (!time.isAfter(LocalTime.of(22, 45))) {
-            comboTimeSlot.getItems().add(time.toString());
-            time = time.plusMinutes(15);
-        }
-    }
-    
-
     
    
     // ===== UI Update Methods =====

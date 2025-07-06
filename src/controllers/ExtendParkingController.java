@@ -101,7 +101,7 @@ public class ExtendParkingController {
      * It can be called from other parts of the application.
      *
      * @param msg   The text message to be displayed in the status label.
-     * @param color The color of the text, defined using a CSS color name (e.g., "red", "green") 
+     * @param color The color of the text, defined using a CSS color name  
      *              or a hexadecimal color code.
      */
     public void setStatusMessage(String msg, String color) {
