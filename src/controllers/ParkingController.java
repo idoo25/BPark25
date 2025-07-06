@@ -1017,6 +1017,7 @@ public class ParkingController {
 					Timestamp actualStart = rs.getTimestamp("Actual_start_time");
 					Timestamp actualEnd = rs.getTimestamp("Actual_end_time");
 					Timestamp estimatedEnd = rs.getTimestamp("Estimated_end_time");
+					Timestamp estimatedStart = rs.getTimestamp("Estimated_start_time");
 
 					if (actualStart != null) {
 						order.setEntryTime(actualStart.toLocalDateTime());
@@ -1026,6 +1027,9 @@ public class ParkingController {
 					}
 					if (estimatedEnd != null) {
 						order.setExpectedExitTime(estimatedEnd.toLocalDateTime());
+					}
+					if (estimatedStart != null) {
+					    order.setEstimatedStartTime(estimatedStart.toLocalDateTime());
 					}
 
 					order.setLate("yes".equals(rs.getString("IsLate")));

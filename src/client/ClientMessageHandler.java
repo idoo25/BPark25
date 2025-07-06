@@ -9,16 +9,24 @@ import controllers.ExtendParkingController;
 import controllers.LoginController;
 import controllers.ManagerController;
 import controllers.UpdateProfileController;
+import controllers.ParkingHistoryController;
 import entities.Message;
 import entities.ParkingOrder;
 import entities.ParkingReport;
 import entities.ParkingSubscriber;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import controllers.KioskController;
 
 public class ClientMessageHandler {
+	
+    private static ParkingHistoryController parkingHistoryController;
 
     /**
      * Handle incoming Message objects from the server
@@ -237,10 +245,59 @@ public class ClientMessageHandler {
     }
 
     @SuppressWarnings("unchecked")
-    private static void handleParkingHistory(Message message) {
-        ArrayList<ParkingOrder> history = (ArrayList<ParkingOrder>) message.getContent();
-        System.out.println("Received " + history.size() + " parking records");
-    }
+private static void handleParkingHistory(Message message) {
+    ArrayList<ParkingOrder> history = (ArrayList<ParkingOrder>) message.getContent();
+    System.out.println("Received " + history.size() + " parking records");
+    
+    // Open parking history window
+    Platform.runLater(() -> {
+        try {
+            // If history window is already open and still showing, just update it
+            if (parkingHistoryController != null && parkingHistoryController.isWindowShowing()) {
+                parkingHistoryController.loadHistory(history);
+                return;
+            }
+            
+            // Clear the reference if window was closed
+            if (parkingHistoryController != null && !parkingHistoryController.isWindowShowing()) {
+                parkingHistoryController = null;
+            }
+            
+            // Create new history window
+            FXMLLoader loader = new FXMLLoader(ClientMessageHandler.class.getResource("/client/ParkingHistoryView.fxml"));
+            Parent root = loader.load();
+            
+            // Get controller and set up
+            parkingHistoryController = loader.getController();
+            parkingHistoryController.setUserName(BParkClientApp.getCurrentUser());
+            parkingHistoryController.loadHistory(history);
+            
+            // Create and show new stage
+            Stage historyStage = new Stage();
+            historyStage.setTitle("BPark - Parking History");
+            historyStage.initModality(Modality.NONE); // Allow interaction with main window
+            historyStage.setScene(new Scene(root));
+            
+            // Clear reference when window is closed (both X button and Close button)
+            historyStage.setOnCloseRequest(event -> {
+                parkingHistoryController = null;
+                System.out.println("Parking history window closed - reference cleared");
+            });
+            
+            // Also clear reference when window is hidden
+            historyStage.setOnHidden(event -> {
+                parkingHistoryController = null;
+                System.out.println("Parking history window hidden - reference cleared");
+            });
+            
+            historyStage.show();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open parking history window: " + e.getMessage());
+        }
+    });
+}
 
     @SuppressWarnings("unchecked")
     private static void handleReports(Message message) {
