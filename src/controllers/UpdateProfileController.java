@@ -85,27 +85,26 @@ public class UpdateProfileController{
      */
     @FXML
     private void handleUpdate() {
-        String email = emailField.getText().trim();
-        String phone = phoneField.getText().trim();
-        String carNumber = carNumberField.getText().trim();
-        String userId = BParkClientApp.getCurrentUser();
+        // ✅ Read only what the user typed
+        String emailInput = emailField.getText().trim();
+        String phoneInput = phoneField.getText().trim();
+        String carInput = carNumberField.getText().trim();
 
-        // Use prompt text as fallback if field is empty
-        if (email.isEmpty()) email = emailField.getPromptText();
-        if (phone.isEmpty()) phone = phoneField.getPromptText();
-        if (carNumber.isEmpty()) carNumber = carNumberField.getPromptText();
-
-        // If all fields are still empty, don't send
-        if (email.isEmpty() && phone.isEmpty() && carNumber.isEmpty()) {
-            statusLabel.setText("Please fill in at least one field.");
+        // ✅ If all fields are truly empty (user typed nothing)
+        if (emailInput.isEmpty() && phoneInput.isEmpty() && carInput.isEmpty()) {
+            statusLabel.setText("Please fill in at least one field before updating.");
             statusLabel.setStyle("-fx-text-fill: red;");
             return;
         }
 
-        // Format: userId,phone,email,carNumber
+        // If some fields are empty, fallback to promptText
+        String email = emailInput.isEmpty() ? emailField.getPromptText() : emailInput;
+        String phone = phoneInput.isEmpty() ? phoneField.getPromptText() : phoneInput;
+        String carNumber = carInput.isEmpty() ? carNumberField.getPromptText() : carInput;
+
+        String userId = BParkClientApp.getCurrentUser();
         String data = userId + "," + phone + "," + email + "," + carNumber;
 
-        // Send the update
         Message msg = new Message(MessageType.UPDATE_SUBSCRIBER_INFO, data);
         BParkClientApp.sendMessage(msg);
 

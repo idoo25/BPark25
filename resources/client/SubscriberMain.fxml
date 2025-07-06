@@ -28,8 +28,7 @@
 
 
 
-				<Button fx:id="btnCheckAvailability" text="Refresh"
-					onAction="#checkParkingAvailability" />
+				
 				<Button fx:id="btnLogout" text="Logout"
 					onAction="#handleLogout" styleClass="logout-button" />
 			</HBox>

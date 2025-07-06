@@ -226,6 +226,11 @@ public class SubscriberController implements Initializable {
                 BParkClientApp.sendMessage(msg);
                 txtCancelCode.clear();
             }
+           
+        }
+        else {
+            //Show error if field is empty
+            showError("Missing Code", "Please enter a reservation code before clicking Cancel.");
         }
     }
     
