@@ -21,7 +21,17 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-
+/**
+ * Controller for the Parking History window
+ * Displays user's parking history in a separate window
+ * 
+ * NOTE: To fully support all formatting requirements, the following would need to be added:
+ * 1. ParkingOrder.getEstimatedStartTime() method to show estimated start date for preorders
+ * 2. The ParkingController.getParkingHistory() method would need to set the estimated start time
+ *    from the database field pi.Estimated_start_time
+ * 
+ * Current implementation uses actual entry time for all order types due to these limitations.
+ */
 public class ParkingHistoryController implements Initializable {
 
     // UI Controls
@@ -89,13 +99,13 @@ public class ParkingHistoryController implements Initializable {
             return new javafx.beans.property.SimpleStringProperty("Unknown");
         });
         
-        // Date column - For cancelled: show estimated start date, others: show actual entry date
+        // Date column - For cancelled and preorder: show estimated start date, others: show actual entry date
         colDate.setCellValueFactory(cellData -> {
             ParkingOrder order = cellData.getValue();
             String status = order.getStatus();
             
-            // For cancelled reservations, show estimated start date
-            if ("cancelled".equalsIgnoreCase(status) || "canceled".equalsIgnoreCase(status)) {
+            // For cancelled and preorder reservations, show estimated start date
+            if ("cancelled".equalsIgnoreCase(status) || "canceled".equalsIgnoreCase(status) || "preorder".equalsIgnoreCase(status)) {
                 if (order.getEstimatedStartTime() != null) {
                     String dateStr = order.getEstimatedStartTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                     return new javafx.beans.property.SimpleStringProperty(dateStr);
@@ -111,13 +121,25 @@ public class ParkingHistoryController implements Initializable {
             return new javafx.beans.property.SimpleStringProperty("N/A");
         });
         
-        // Entry Time (actual)
+        // Entry Time (actual) - For preorder: show estimated start time, others: show actual entry time
         colEntryTime.setCellValueFactory(cellData -> {
             ParkingOrder order = cellData.getValue();
+            String status = order.getStatus();
+            
+            // For preorder status, show estimated start time
+            if ("preorder".equalsIgnoreCase(status)) {
+                if (order.getEstimatedStartTime() != null) {
+                    String formatted = order.getEstimatedStartTime().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+                    return new javafx.beans.property.SimpleStringProperty(formatted);
+                }
+            }
+            
+            // For all other statuses, show actual entry time if available
             if (order.getEntryTime() != null) {
                 String formatted = order.getEntryTime().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
                 return new javafx.beans.property.SimpleStringProperty(formatted);
             }
+            
             return new javafx.beans.property.SimpleStringProperty("N/A");
         });
         
@@ -145,7 +167,7 @@ public class ParkingHistoryController implements Initializable {
             ParkingOrder order = cellData.getValue();
             String status = order.getStatus();
             
-            if ("Canceled".equalsIgnoreCase(status) || "cancelled".equalsIgnoreCase(status)) {
+            if ("Canceled".equalsIgnoreCase(status) || "cancelled".equalsIgnoreCase(status) || "preorder".equalsIgnoreCase(status)) {
                 return new javafx.beans.property.SimpleStringProperty("0 hours 0 minutes");
             } else if ("Active".equalsIgnoreCase(status) || "Finished".equalsIgnoreCase(status) || "Completed".equalsIgnoreCase(status)) {
                 // Calculate duration manually
