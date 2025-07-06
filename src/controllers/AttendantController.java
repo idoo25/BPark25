@@ -35,6 +35,8 @@ public class AttendantController implements Initializable {
 
 	// ====== Registration Fields ======
 	@FXML
+	private TextField UserID;
+	@FXML
 	private TextField txtName;
 	@FXML
 	private TextField txtPhone;
@@ -44,6 +46,8 @@ public class AttendantController implements Initializable {
 	private TextField txtCarNumber;
 	@FXML
 	private TextField txtUsername;
+	@FXML
+	private TextField subscriberIdField;
 	@FXML
 	private Label lblRegistrationStatus;
 	@FXML
@@ -70,6 +74,8 @@ public class AttendantController implements Initializable {
 	// ====== Subscribers Table ======
 	@FXML
 	private TableView<ParkingSubscriber> tableSubscribers;
+	@FXML
+	private TableColumn<ParkingSubscriber, String> colUserID;
 	@FXML
 	private TableColumn<ParkingSubscriber, String> colSubName;
 	@FXML
@@ -127,6 +133,8 @@ public class AttendantController implements Initializable {
 		}
 
 		if (tableSubscribers != null) {
+			colUserID.setCellValueFactory(
+					cellData -> new SimpleStringProperty(cellData.getValue().getSubscriberID() + ""));
 			colSubName.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFirstName()));
 			colSubPhone.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPhoneNumber()));
 			colSubEmail.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getEmail()));
@@ -377,5 +385,15 @@ public class AttendantController implements Initializable {
 		BParkClientApp.disconnect();
 		Platform.exit();
 		System.exit(0);
+	}
+
+	/**
+	 * Open subscriber History
+	 */
+	@FXML
+	private void handleSubscriberIdEnter() {
+		String subscriberId = subscriberIdField.getText();
+		Message msg = new Message(MessageType.GET_PARKING_HISTORY, subscriberId);
+		BParkClientApp.sendMessage(msg);
 	}
 }
