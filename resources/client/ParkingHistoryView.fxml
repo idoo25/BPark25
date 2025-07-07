@@ -63,7 +63,7 @@ prefWidth="1100.0">
 <HBox spacing="15" alignment="CENTER_LEFT">
 <Label text="Filter by Status:" style="-fx-font-weight: bold;" />
 <ComboBox fx:id="comboStatusFilter" promptText="All Sessions" prefWidth="150" onAction="#handleFilterChange" />
-<Button text="Refresh" onAction="#handleRefresh" styleClass="primary-button" />
+
 </HBox>
 
 <!-- Parking History Table -->

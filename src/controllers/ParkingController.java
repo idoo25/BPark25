@@ -21,16 +21,11 @@ import services.EmailService;
  */
 
 public class ParkingController {
-	
-	
+
 	/**
 	 * The unique ID of the subscriber (customer) in the system.
 	 */
 	private int subscriberID;
-	
-	
-	
-	
 
 	/**
 	 * The first name of the subscriber for identification and display.
@@ -58,7 +53,8 @@ public class ParkingController {
 	private String subscriberCode;
 
 	/**
-	 * Indicates the type of user: subscriber ("sub"), employee ("emp"), or manager ("mng").
+	 * Indicates the type of user: subscriber ("sub"), employee ("emp"), or manager
+	 * ("mng").
 	 */
 	private String userType;
 
@@ -78,136 +74,172 @@ public class ParkingController {
 	private static final int TOTAL_PARKING_SPOTS = 10;
 
 	/**
-	 * The fraction of occupancy above which new reservations are restricted (constant).
+	 * The fraction of occupancy above which new reservations are restricted
+	 * (constant).
 	 */
 	private static final double RESERVATION_THRESHOLD = 0.4;
 
 	/**
-	 * Service that periodically checks and cancels overdue reservations automatically.
+	 * Service that periodically checks and cancels overdue reservations
+	 * automatically.
 	 */
 	private SimpleAutoCancellationService autoCancellationService;
 
-
-    
 	/**
-	 * Constructs a ParkingController instance by initializing the database connection
-	 * with the given database name and password. 
-	 * Also retrieves the success flag to verify the connection status.
+	 * Constructs a ParkingController instance by initializing the database
+	 * connection with the given database name and password. Also retrieves the
+	 * success flag to verify the connection status.
 	 *
 	 * @param dbname the name of the database to connect to
-	 * @param pass the password for the database connection
+	 * @param pass   the password for the database connection
 	 */
 	public ParkingController(String dbname, String pass) {
-	    DBController.initializeConnection(dbname, pass);
-	    successFlag = DBController.getInstance().getSuccessFlag();
-	    autoCancellationService = new SimpleAutoCancellationService(this);
-	    
-	    if (successFlag == 1) {
-	        startAutoCancellationService();
-	    }
+		DBController.initializeConnection(dbname, pass);
+		successFlag = DBController.getInstance().getSuccessFlag();
+		autoCancellationService = new SimpleAutoCancellationService(this);
+
+		if (successFlag == 1) {
+			startAutoCancellationService();
+		}
 	}
-    
+
 	/**
-	 * Represents the role-based access control levels for the parking system.
-	 * Each role is mapped to a database string value for persistence.
+	 * Represents the role-based access control levels for the parking system. Each
+	 * role is mapped to a database string value for persistence.
 	 *
-	 * Roles include:
-	 * - SUBSCRIBER: Regular user with subscription privileges ("sub")
-	 * - ATTENDANT: Employee responsible for day-to-day operations ("emp")
-	 * - MANAGER: Administrative user with elevated access ("mng")
+	 * Roles include: - SUBSCRIBER: Regular user with subscription privileges
+	 * ("sub") - ATTENDANT: Employee responsible for day-to-day operations ("emp") -
+	 * MANAGER: Administrative user with elevated access ("mng")
 	 */
 	public enum UserRole {
-	    SUBSCRIBER("sub"),
-	    ATTENDANT("emp"), 
-	    MANAGER("mng");
-	    
-	    private final String dbValue;
+		SUBSCRIBER("sub"), ATTENDANT("emp"), MANAGER("mng");
 
-	    /**
-	     * Constructs a UserRole with the associated database string value.
-	     *
-	     * @param dbValue the string value stored in the database
-	     */
-	    UserRole(String dbValue) {
-	        this.dbValue = dbValue;
-	    }
+		private final String dbValue;
 
-	    /**
-	     * Returns the database string value for this user role.
-	     *
-	     * @return the string representation of the role in the database
-	     */
-	    public String getDbValue() {
-	        return dbValue;
-	    }
+		/**
+		 * Constructs a UserRole with the associated database string value.
+		 *
+		 * @param dbValue the string value stored in the database
+		 */
+		UserRole(String dbValue) {
+			this.dbValue = dbValue;
+		}
 
-	    /**
-	     * Retrieves the corresponding UserRole enum for a given database string value.
-	     *
-	     * @param dbValue the string stored in the database
-	     * @return the matching UserRole, or null if no match is found
-	     */
-	    public static UserRole fromDbValue(String dbValue) {
-	        for (UserRole role : values()) {
-	            if (role.dbValue.equals(dbValue)) {
-	                return role;
-	            }
-	        }
-	        return null;
-	    }
+		/**
+		 * Returns the database string value for this user role.
+		 *
+		 * @return the string representation of the role in the database
+		 */
+		public String getDbValue() {
+			return dbValue;
+		}
+
+		/**
+		 * Retrieves the corresponding UserRole enum for a given database string value.
+		 *
+		 * @param dbValue the string stored in the database
+		 * @return the matching UserRole, or null if no match is found
+		 */
+		public static UserRole fromDbValue(String dbValue) {
+			for (UserRole role : values()) {
+				if (role.dbValue.equals(dbValue)) {
+					return role;
+				}
+			}
+			return null;
+		}
 	}
-	
-    // Getters
-    public int getSubscriberID() { return subscriberID; }
-    public String getFirstName() { return firstName; }
-    public String getPhoneNumber() { return phoneNumber; }
-    public String getEmail() { return email; }
-    public String getCarNumber() { return carNumber; }
-    public String getSubscriberCode() { return subscriberCode; }
-    public String getUserType() { return userType; }
 
-    // Setters
-    public void setSubscriberID(int subscriberID) { this.subscriberID = subscriberID; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
-    public void setEmail(String email) { this.email = email; }
-    public void setCarNumber(String carNumber) { this.carNumber = carNumber; }
-    public void setSubscriberCode(String subscriberCode) { this.subscriberCode = subscriberCode; }
-    public void setUserType(String userType) { this.userType = userType; }
+	// Getters
+	public int getSubscriberID() {
+		return subscriberID;
+	}
 
-    /**
-     * Get user role from database
-     */
-    private UserRole getUserRole(String userName) {
-        String qry = "SELECT UserTypeEnum FROM users WHERE UserName = ?";
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public String getCarNumber() {
+		return carNumber;
+	}
+
+	public String getSubscriberCode() {
+		return subscriberCode;
+	}
+
+	public String getUserType() {
+		return userType;
+	}
+
+	// Setters
+	public void setSubscriberID(int subscriberID) {
+		this.subscriberID = subscriberID;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public void setCarNumber(String carNumber) {
+		this.carNumber = carNumber;
+	}
+
+	public void setSubscriberCode(String subscriberCode) {
+		this.subscriberCode = subscriberCode;
+	}
+
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
+
+	/**
+	 * Get user role from database
+	 */
+	private UserRole getUserRole(String userName) {
+		String qry = "SELECT UserTypeEnum FROM users WHERE UserName = ?";
 		Connection conn = DBController.getInstance().getConnection();
 
-        try (PreparedStatement stmt = conn.prepareStatement(qry)) {
-            stmt.setString(1, userName);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    String userType = rs.getString("UserTypeEnum");
-                    return UserRole.fromDbValue(userType);
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error getting user role: " + e.getMessage());
-        }
-        return null;
-    }
+		try (PreparedStatement stmt = conn.prepareStatement(qry)) {
+			stmt.setString(1, userName);
+			try (ResultSet rs = stmt.executeQuery()) {
+				if (rs.next()) {
+					String userType = rs.getString("UserTypeEnum");
+					return UserRole.fromDbValue(userType);
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println("Error getting user role: " + e.getMessage());
+		}
+		return null;
+	}
 
-    /**
-     * Check if user has required role for operation
-     */
-    private boolean hasRole(String userName, UserRole requiredRole) {
-        UserRole userRole = getUserRole(userName);
-        return userRole == requiredRole;
-    }
+	/**
+	 * Check if user has required role for operation
+	 */
+	private boolean hasRole(String userName, UserRole requiredRole) {
+		UserRole userRole = getUserRole(userName);
+		return userRole == requiredRole;
+	}
 
-    public Connection getConnection() {
-        return conn;
-    }
-
+	public Connection getConnection() {
+		return conn;
+	}
 
 	/**
 	 * Start the automatic monitoring service (cancellations + late pickups)
@@ -383,6 +415,15 @@ public class ParkingController {
 		return "Reservation failed";
 	}
 
+	/**
+	 * Handles a direct parking entry request for a given user. Checks if the user
+	 * already has an active parking, if parking is full, and creates a new active
+	 * parking record if possible.
+	 *
+	 * @param userID The ID of the user entering the parking.
+	 * @return A string describing the result: success message with parking code and
+	 *         spot, or an error message if parking could not be assigned.
+	 */
 	public String enterParking(int userID) {
 		// Check if user already has active parking
 		String checkActiveQry = "SELECT COUNT(*) FROM parkinginfo WHERE User_ID = ? AND statusEnum = 'active'";
@@ -412,11 +453,12 @@ public class ParkingController {
 			return "No parking spots available.";
 		}
 
-		// Insert new parking record
+		// Insert new active parking record with estimated times
 		String insertQry = """
 				    INSERT INTO parkinginfo
-				    (ParkingSpot_ID, User_ID, Actual_start_time, IsOrderedEnum, IsLate, IsExtended, statusEnum)
-				    VALUES (?, ?, NOW(), 'no', 'no', 'no', 'active')
+				    (ParkingSpot_ID, User_ID, Actual_start_time, Estimated_start_time, Estimated_end_time,
+				     IsOrderedEnum, IsLate, IsExtended, statusEnum)
+				    VALUES (?, ?, NOW(), NOW(), NOW() + INTERVAL 4 HOUR, 'no', 'no', 'no', 'active')
 				""";
 		conn = DBController.getInstance().getConnection();
 		try (PreparedStatement insertStmt = conn.prepareStatement(insertQry, PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -505,7 +547,7 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error handling reservation entry: " + e.getMessage());
-		}finally {
+		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
 		return "Invalid reservation code or reservation not in preorder status.";
@@ -682,8 +724,8 @@ public class ParkingController {
 		}
 	}
 
-
-	 /** ATTENDANT-ONLY: Register new subscriber (PDF requirement) Only attendants can
+	/**
+	 * ATTENDANT-ONLY: Register new subscriber (PDF requirement) Only attendants can
 	 * register new users
 	 */
 	public String registerNewSubscriber(String attendantUserName, String name, String phone, String email,
@@ -934,7 +976,7 @@ public class ParkingController {
 						order.setExpectedExitTime(estimatedEnd.toLocalDateTime());
 					}
 					if (estimatedStart != null) {
-					    order.setEstimatedStartTime(estimatedStart.toLocalDateTime());
+						order.setEstimatedStartTime(estimatedStart.toLocalDateTime());
 					}
 
 					order.setLate("yes".equals(rs.getString("IsLate")));
@@ -1067,39 +1109,38 @@ public class ParkingController {
 	 * Initializes parking spots if they don't exist
 	 */
 	public void initializeParkingSpots() {
-    Connection conn = DBController.getInstance().getConnection();
+		Connection conn = DBController.getInstance().getConnection();
 
-    try {
-        // Check if spots already exist
-        String checkQry = "SELECT COUNT(*) FROM ParkingSpot";
-        try (PreparedStatement stmt = conn.prepareStatement(checkQry)) {
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next() && rs.getInt(1) == 0) {
-                    // Initialize parking spots - AUTO_INCREMENT will handle ParkingSpot_ID
-                    String insertQry = "INSERT INTO ParkingSpot (isOccupied) VALUES (false)";
-                    try (PreparedStatement insertStmt = conn.prepareStatement(insertQry)) {
-                        for (int i = 1; i <= TOTAL_PARKING_SPOTS; i++) {
-                            insertStmt.executeUpdate();
-                        }
-                    }
-                    System.out.println("Successfully initialized " + TOTAL_PARKING_SPOTS
-                            + " parking spots with AUTO_INCREMENT");
-                } else {
-                    System.out.println("Parking spots already exist: " + rs.getInt(1) + " spots found");
-                }
-            }
-        }
-    } catch (SQLException e) {
-        System.out.println("Error initializing parking spots: " + e.getMessage());
-    } finally {
-        DBController.getInstance().releaseConnection(conn);
-    }
-    
- 
-    if (autoCancellationService != null && !autoCancellationService.isRunning()) {
-        startAutoCancellationService();
-    }
-}
+		try {
+			// Check if spots already exist
+			String checkQry = "SELECT COUNT(*) FROM ParkingSpot";
+			try (PreparedStatement stmt = conn.prepareStatement(checkQry)) {
+				try (ResultSet rs = stmt.executeQuery()) {
+					if (rs.next() && rs.getInt(1) == 0) {
+						// Initialize parking spots - AUTO_INCREMENT will handle ParkingSpot_ID
+						String insertQry = "INSERT INTO ParkingSpot (isOccupied) VALUES (false)";
+						try (PreparedStatement insertStmt = conn.prepareStatement(insertQry)) {
+							for (int i = 1; i <= TOTAL_PARKING_SPOTS; i++) {
+								insertStmt.executeUpdate();
+							}
+						}
+						System.out.println("Successfully initialized " + TOTAL_PARKING_SPOTS
+								+ " parking spots with AUTO_INCREMENT");
+					} else {
+						System.out.println("Parking spots already exist: " + rs.getInt(1) + " spots found");
+					}
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println("Error initializing parking spots: " + e.getMessage());
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
+		}
+
+		if (autoCancellationService != null && !autoCancellationService.isRunning()) {
+			startAutoCancellationService();
+		}
+	}
 
 	// ========== HELPER METHODS ==========
 
