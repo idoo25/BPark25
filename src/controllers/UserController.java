@@ -9,7 +9,7 @@ import java.util.List;
 
 import entities.ParkingSubscriber;
 import server.DBController;
-import services.EmailServiceStub;
+import services.EmailService;
 
 /**
  * UserController handles all user-related operations following the Single Responsibility Principle.
@@ -229,8 +229,8 @@ public class UserController {
                         int userID = generatedKeys.getInt(1);
                         
                         // Send registration emails
-                        EmailServiceStub.sendRegistrationConfirmation(email, name, subscriberUserName, userID);
-                        EmailServiceStub.sendWelcomeMessage(email, name, subscriberUserName, userID);
+                        EmailService.sendRegistrationConfirmation(email, name, subscriberUserName, userID);
+                        EmailService.sendWelcomeMessage(email, name, subscriberUserName, userID);
                         
                         return "SUCCESS: Subscriber registered successfully. User ID: " + userID;
                     }
