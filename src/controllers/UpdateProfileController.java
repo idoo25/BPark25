@@ -116,9 +116,9 @@ public class UpdateProfileController {
 	 * @param carNum The subscriber's car number to show as a placeholder.
 	 */
 	public void setFieldPrompts(String email, String phone, String carNum) {
-		emailField.setPromptText(email);
-		phoneField.setPromptText(phone);
-		carNumberField.setPromptText(carNum);
+		emailField.setPromptText(email != null ? email : "");
+		phoneField.setPromptText(phone != null ? phone : "No phone number on file");
+		carNumberField.setPromptText(carNum != null ? carNum : "");
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class UpdateProfileController {
 	 * @param email The email address to set in the text field.
 	 */
 	public void setEmail(String email) {
-		emailField.setText(email);
+		emailField.setText(email != null ? email : "");
 	}
 
 	/**
@@ -138,7 +138,7 @@ public class UpdateProfileController {
 	 * @param phone The phone number to set in the text field.
 	 */
 	public void setPhone(String phone) {
-		phoneField.setText(phone);
+		phoneField.setText(phone != null ? phone : "");
 	}
 
 }

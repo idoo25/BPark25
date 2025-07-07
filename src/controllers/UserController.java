@@ -78,7 +78,15 @@ public class UserController {
                     ParkingSubscriber subscriber = new ParkingSubscriber();
                     subscriber.setSubscriberID(rs.getInt("User_ID"));
                     subscriber.setFirstName(rs.getString("Name"));
-                    subscriber.setPhoneNumber(rs.getString("PhoneNumber"));
+                    
+                    // Handle PhoneNumber field safely - it may not exist in database
+                    try {
+                        subscriber.setPhoneNumber(rs.getString("PhoneNumber"));
+                    } catch (SQLException e) {
+                        System.err.println("Warning: PhoneNumber column not found in database, setting to null");
+                        subscriber.setPhoneNumber(null);
+                    }
+                    
                     subscriber.setEmail(rs.getString("Email"));
                     subscriber.setCarNumber(rs.getString("CarNumber"));
                     subscriber.setSubscriberCode(rs.getString("UserName"));
@@ -111,7 +119,15 @@ public class UserController {
                     ParkingSubscriber subscriber = new ParkingSubscriber();
                     subscriber.setSubscriberID(rs.getInt("User_ID"));
                     subscriber.setFirstName(rs.getString("Name"));
-                    subscriber.setPhoneNumber(rs.getString("PhoneNumber"));
+                    
+                    // Handle PhoneNumber field safely - it may not exist in database
+                    try {
+                        subscriber.setPhoneNumber(rs.getString("PhoneNumber"));
+                    } catch (SQLException e) {
+                        System.err.println("Warning: PhoneNumber column not found in database, setting to null");
+                        subscriber.setPhoneNumber(null);
+                    }
+                    
                     subscriber.setEmail(rs.getString("Email"));
                     subscriber.setCarNumber(rs.getString("CarNumber"));
                     subscriber.setSubscriberCode(rs.getString("UserName"));
@@ -140,7 +156,15 @@ public class UserController {
                     ParkingSubscriber subscriber = new ParkingSubscriber();
                     subscriber.setSubscriberID(rs.getInt("User_ID"));
                     subscriber.setFirstName(rs.getString("Name"));
-                    subscriber.setPhoneNumber(rs.getString("PhoneNumber"));
+                    
+                    // Handle PhoneNumber field safely - it may not exist in database
+                    try {
+                        subscriber.setPhoneNumber(rs.getString("PhoneNumber"));
+                    } catch (SQLException e) {
+                        System.err.println("Warning: PhoneNumber column not found in database, setting to null");
+                        subscriber.setPhoneNumber(null);
+                    }
+                    
                     subscriber.setEmail(rs.getString("Email"));
                     subscriber.setCarNumber(rs.getString("CarNumber"));
                     subscriber.setSubscriberCode(rs.getString("UserName"));
@@ -213,32 +237,69 @@ public class UserController {
             return "ERROR: Username already exists";
         }
 
-        String insertQry = "INSERT INTO users (Name, PhoneNumber, Email, CarNumber, UserName, UserTypeEnum) VALUES (?, ?, ?, ?, ?, 'sub')";
         Connection conn = DBController.getInstance().getConnection();
-        try (PreparedStatement stmt = conn.prepareStatement(insertQry, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, name);
-            stmt.setString(2, phone);
-            stmt.setString(3, email);
-            stmt.setString(4, carNumber);
-            stmt.setString(5, subscriberUserName);
+        String insertQry;
+        
+        // Try to insert with PhoneNumber first, fallback to without PhoneNumber if column doesn't exist
+        try {
+            insertQry = "INSERT INTO users (Name, PhoneNumber, Email, CarNumber, UserName, UserTypeEnum) VALUES (?, ?, ?, ?, ?, 'sub')";
+            try (PreparedStatement stmt = conn.prepareStatement(insertQry, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                stmt.setString(1, name);
+                stmt.setString(2, phone);
+                stmt.setString(3, email);
+                stmt.setString(4, carNumber);
+                stmt.setString(5, subscriberUserName);
 
-            int affectedRows = stmt.executeUpdate();
-            if (affectedRows > 0) {
-                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        int userID = generatedKeys.getInt(1);
-                        
-                        // Send registration emails
-                        EmailService.sendRegistrationConfirmation(email, name, subscriberUserName, userID);
-                        EmailService.sendWelcomeMessage(email, name, subscriberUserName, userID);
-                        
-                        return "SUCCESS: Subscriber registered successfully. User ID: " + userID;
+                int affectedRows = stmt.executeUpdate();
+                if (affectedRows > 0) {
+                    try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            int userID = generatedKeys.getInt(1);
+                            
+                            // Send registration emails
+                            EmailService.sendRegistrationConfirmation(email, name, subscriberUserName, userID);
+                            EmailService.sendWelcomeMessage(email, name, subscriberUserName, userID);
+                            
+                            return "SUCCESS: Subscriber registered successfully. User ID: " + userID;
+                        }
                     }
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            return "ERROR: Database error during registration: " + e.getMessage();
+            // If PhoneNumber column doesn't exist, try without it
+            if (e.getMessage().contains("PhoneNumber") || e.getMessage().contains("Unknown column")) {
+                System.err.println("Warning: PhoneNumber column not found, registering without phone number");
+                try {
+                    insertQry = "INSERT INTO users (Name, Email, CarNumber, UserName, UserTypeEnum) VALUES (?, ?, ?, ?, 'sub')";
+                    try (PreparedStatement stmt = conn.prepareStatement(insertQry, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                        stmt.setString(1, name);
+                        stmt.setString(2, email);
+                        stmt.setString(3, carNumber);
+                        stmt.setString(4, subscriberUserName);
+
+                        int affectedRows = stmt.executeUpdate();
+                        if (affectedRows > 0) {
+                            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                                if (generatedKeys.next()) {
+                                    int userID = generatedKeys.getInt(1);
+                                    
+                                    // Send registration emails
+                                    EmailService.sendRegistrationConfirmation(email, name, subscriberUserName, userID);
+                                    EmailService.sendWelcomeMessage(email, name, subscriberUserName, userID);
+                                    
+                                    return "SUCCESS: Subscriber registered successfully (phone number not stored due to database schema). User ID: " + userID;
+                                }
+                            }
+                        }
+                    }
+                } catch (SQLException e2) {
+                    e2.printStackTrace();
+                    return "ERROR: Database error during registration: " + e2.getMessage();
+                }
+            } else {
+                e.printStackTrace();
+                return "ERROR: Database error during registration: " + e.getMessage();
+            }
         } finally {
             DBController.getInstance().releaseConnection(conn);
         }
@@ -261,25 +322,54 @@ public class UserController {
         String newCarNumber = parts[4].trim();
         String newUserName = parts[5].trim();
 
-        String updateQry = "UPDATE users SET Name = ?, PhoneNumber = ?, Email = ?, CarNumber = ?, UserName = ? WHERE UserName = ?";
         Connection conn = DBController.getInstance().getConnection();
-        try (PreparedStatement stmt = conn.prepareStatement(updateQry)) {
-            stmt.setString(1, newName);
-            stmt.setString(2, newPhone);
-            stmt.setString(3, newEmail);
-            stmt.setString(4, newCarNumber);
-            stmt.setString(5, newUserName);
-            stmt.setString(6, userName);
+        
+        // Try to update with PhoneNumber first, fallback to without PhoneNumber if column doesn't exist
+        try {
+            String updateQry = "UPDATE users SET Name = ?, PhoneNumber = ?, Email = ?, CarNumber = ?, UserName = ? WHERE UserName = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(updateQry)) {
+                stmt.setString(1, newName);
+                stmt.setString(2, newPhone);
+                stmt.setString(3, newEmail);
+                stmt.setString(4, newCarNumber);
+                stmt.setString(5, newUserName);
+                stmt.setString(6, userName);
 
-            int affectedRows = stmt.executeUpdate();
-            if (affectedRows > 0) {
-                return "SUCCESS: Profile updated successfully";
-            } else {
-                return "ERROR: User not found";
+                int affectedRows = stmt.executeUpdate();
+                if (affectedRows > 0) {
+                    return "SUCCESS: Profile updated successfully";
+                } else {
+                    return "ERROR: User not found";
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            return "ERROR: Database error during update: " + e.getMessage();
+            // If PhoneNumber column doesn't exist, try without it
+            if (e.getMessage().contains("PhoneNumber") || e.getMessage().contains("Unknown column")) {
+                System.err.println("Warning: PhoneNumber column not found, updating without phone number");
+                try {
+                    String updateQry = "UPDATE users SET Name = ?, Email = ?, CarNumber = ?, UserName = ? WHERE UserName = ?";
+                    try (PreparedStatement stmt = conn.prepareStatement(updateQry)) {
+                        stmt.setString(1, newName);
+                        stmt.setString(2, newEmail);
+                        stmt.setString(3, newCarNumber);
+                        stmt.setString(4, newUserName);
+                        stmt.setString(5, userName);
+
+                        int affectedRows = stmt.executeUpdate();
+                        if (affectedRows > 0) {
+                            return "SUCCESS: Profile updated successfully (phone number not updated due to database schema)";
+                        } else {
+                            return "ERROR: User not found";
+                        }
+                    }
+                } catch (SQLException e2) {
+                    e2.printStackTrace();
+                    return "ERROR: Database error during update: " + e2.getMessage();
+                }
+            } else {
+                e.printStackTrace();
+                return "ERROR: Database error during update: " + e.getMessage();
+            }
         } finally {
             DBController.getInstance().releaseConnection(conn);
         }
