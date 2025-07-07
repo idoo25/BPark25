@@ -34,11 +34,9 @@ import javafx.scene.control.TextField;
 import javafx.util.Duration;
 
 /**
- * ||in CLIENT||
- * 
- * ManagerController handles the Manager dashboard UI logic and communicates
- * with the server via the BParkClientApp to request and update parking data. It
- * manages reports, active parkings, and subscriber data visualization.
+ * Controller for the Manager dashboard interface that handles parking system management.
+ * Provides functionality for viewing reports, monitoring active parkings, and managing
+ * subscriber data through server communication.
  */
 public class ManagerController implements Initializable {
 

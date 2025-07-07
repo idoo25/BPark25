@@ -11,6 +11,10 @@ import java.util.ResourceBundle;
 
 import client.BParkLauncherApp;
 
+/**
+ * Controller for the main launcher interface that allows users to configure
+ * server connection settings and choose between client and kiosk applications.
+ */
 public class LauncherController implements Initializable {
 
     @FXML private TextField txtServerIP;
@@ -24,17 +28,26 @@ public class LauncherController implements Initializable {
     private Stage mainStage;
     private boolean isConnecting = false;
 
+    /**
+     * Initializes the controller by setting default values and initial UI state.
+     * 
+     * @param location the location used to resolve relative paths for the root object
+     * @param resources the resources used to localize the root object
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Set default values
         txtServerIP.setText("localhost");
         txtServerPort.setText("5555");
         
-        // Initially hide app selection
         vboxAppSelection.setVisible(false);
         vboxAppSelection.setManaged(false);
     }
 
+    /**
+     * Sets the main stage reference for this controller.
+     * 
+     * @param stage the main application stage
+     */
     public void setMainStage(Stage stage) {
         this.mainStage = stage;
     }

@@ -121,7 +121,6 @@ public class ClientMessageHandler {
 			break;
 
 		default:
-			System.out.println("Unknown message type: " + message.getType());
 		}
 	}
 
@@ -156,7 +155,6 @@ public class ClientMessageHandler {
 			break;
 
 		default:
-			System.out.println("Unknown string command: " + command);
 		}
 	}
 
@@ -241,7 +239,6 @@ public class ClientMessageHandler {
 	@SuppressWarnings("unchecked")
 	private static void handleParkingHistory(Message message) {
 		ArrayList<ParkingOrder> history = (ArrayList<ParkingOrder>) message.getContent();
-		System.out.println("Received " + history.size() + " parking records");
 		
 		// Open the parking history window with the received data
 		Platform.runLater(() -> {
@@ -252,7 +249,6 @@ public class ClientMessageHandler {
 	@SuppressWarnings("unchecked")
 	private static void handleReports(Message message) {
 		ArrayList<ParkingReport> reports = (ArrayList<ParkingReport>) message.getContent();
-		System.out.println("Received " + reports.size() + " reports");
 
 		ManagerController managerController = BParkClientScenes.getManagerController();
 		if (managerController != null) {
@@ -263,7 +259,6 @@ public class ClientMessageHandler {
 	@SuppressWarnings("unchecked")
 	private static void handleActiveParkings(Message message) {
 		ArrayList<ParkingOrder> activeParkings = (ArrayList<ParkingOrder>) message.getContent();
-		System.out.println("Received " + activeParkings.size() + " active parking sessions");
 
 		AttendantController controller = BParkClientScenes.getAttendantController();
 		if (controller != null) {

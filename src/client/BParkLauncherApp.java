@@ -122,7 +122,6 @@ public class BParkLauncherApp extends Application {
 
 		@Override
 		protected void connectionException(Exception exception) {
-			System.out.println("Connection error: " + exception.getMessage());
 		}
 	}
 

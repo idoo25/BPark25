@@ -115,8 +115,6 @@ public class ParkingServer extends AbstractServer {
 	 * @param client the connection to the client.
 	 */
 	public synchronized void handleMessageFromClient(Object msg, ConnectionToClient client) {
-		System.out.println("Message received: " + msg + " from " + client);
-
 		try {
 			if (msg instanceof byte[]) {
 				msg = deserialize(msg);
@@ -327,7 +325,6 @@ public class ParkingServer extends AbstractServer {
 			}
 
 			default:
-				System.out.println("Unknown message type: " + message.getType());
 				break;
 			}
 		} catch (Exception e) {
@@ -470,7 +467,6 @@ public class ParkingServer extends AbstractServer {
 				break;
 
 			default:
-				System.out.println("Unknown string command: " + arr[0]);
 				break;
 			}
 		} catch (Exception e) {
@@ -551,9 +547,7 @@ public class ParkingServer extends AbstractServer {
 		String clientIP = client.getInetAddress().getHostAddress();
 		clientsMap.put(clientIP, "ClientIP: " + client.getInetAddress().getHostAddress() + " status: connected");
 
-		System.out.println("Client connected: " + clientIP);
-
-		 if (spf != null) {
+		if (spf != null) {
 			spf.printConnection(clientsMap);
 		 }
 	}
@@ -567,9 +561,8 @@ public class ParkingServer extends AbstractServer {
 		String clientIP = client.getInetAddress().getHostAddress();
 		clientsMap.put(clientIP, "disconnected");
 		clientsMap.put(clientIP, "ClientIP: " + client.getInetAddress().getHostAddress() + " status: disconnected");
-		System.out.println("Client disconnected: " + clientIP);
 
-		 if (spf != null) {
+		if (spf != null) {
 			spf.printConnection(clientsMap);
 		 }
 	}

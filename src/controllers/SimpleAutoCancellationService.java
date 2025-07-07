@@ -40,15 +40,11 @@ public class SimpleAutoCancellationService {
      */
     public void startService() {
         if (isRunning) {
-            System.out.println("Auto-monitoring service is already running");
             return;
         }
         
         isRunning = true;
         System.out.println("Starting automatic monitoring service...");
-        System.out.println("Checking every minute for:");
-        System.out.println("  - Late preorder reservations (15+ min late = auto-cancel)");
-        System.out.println("  - Late active parkings (15+ min late = notify customer)");
         
         // Schedule to run every minute
         scheduler.scheduleAtFixedRate(() -> {
@@ -119,19 +115,11 @@ public class SimpleAutoCancellationService {
                         if (userEmail != null && fullName != null) {
                             EmailServiceStub.sendReservationCancelled(userEmail, fullName, String.valueOf(reservationCode));
                         }
-                        
-                        System.out.println(String.format(
-                            "✅ AUTO-CANCELLED: Reservation %d for %s (Spot %d) - %d minutes late - Email sent",
-                            reservationCode, userName, spotId, minutesLate
-                        ));
                     }
                 }
                 
                 if (cancelledCount > 0) {
-                    System.out.println(String.format(
-                        "[%s] Auto-cancellation: %d preorder reservations cancelled",
-                        getCurrentTimestamp(), cancelledCount
-                    ));
+                    // Log cancellation summary
                 }
             }
         } catch (SQLException e) {
@@ -183,19 +171,11 @@ public class SimpleAutoCancellationService {
                     
                     if (markAsLateAndNotify(parkingInfoId, userEmail, fullName)) {
                         notifiedCount++;
-                        
-                        System.out.println(String.format(
-                            "⏰ LATE PICKUP: Parking %d for %s (Spot %d) - %d minutes late - Email sent",
-                            parkingInfoId, userName, spotId, minutesLate
-                        ));
                     }
                 }
                 
                 if (notifiedCount > 0) {
-                    System.out.println(String.format(
-                        "[%s] Late pickup monitoring: %d customers notified",
-                        getCurrentTimestamp(), notifiedCount
-                    ));
+                    // Log notification summary
                 }
             }
         } catch (SQLException e) {
@@ -322,7 +302,6 @@ public class SimpleAutoCancellationService {
             int updated = stmt.executeUpdate();
             
             if (updated > 0) {
-                System.out.println("Reservation " + reservationCode + " activated (preorder → active)");
                 return true;
             }
             return false;
@@ -376,7 +355,6 @@ public class SimpleAutoCancellationService {
             }
             
             conn.commit();
-            System.out.println("Reservation " + reservationCode + " finished and spot " + spotId + " freed");
             return true;
             
         } catch (SQLException e) {
