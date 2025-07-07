@@ -146,7 +146,10 @@ public class AttendantController implements Initializable {
 			colUserID.setCellValueFactory(
 					cellData -> new SimpleStringProperty(cellData.getValue().getSubscriberID() + ""));
 			colSubName.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFirstName()));
-			colSubPhone.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPhoneNumber()));
+			colSubPhone.setCellValueFactory(cellData -> {
+				String phoneNumber = cellData.getValue().getPhoneNumber();
+				return new SimpleStringProperty(phoneNumber != null ? phoneNumber : "No phone");
+			});
 			colSubEmail.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getEmail()));
 			colSubCar.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getCarNumber()));
 			colSubUsername
@@ -222,10 +225,6 @@ public class AttendantController implements Initializable {
 			showError("Validation Error", "Name is required");
 			return false;
 		}
-		if (txtPhone.getText().trim().isEmpty()) {
-			showError("Validation Error", "Phone number is required");
-			return false;
-		}
 		if (txtEmail.getText().trim().isEmpty()) {
 			showError("Validation Error", "Email is required");
 			return false;
@@ -238,7 +237,8 @@ public class AttendantController implements Initializable {
 			showError("Validation Error", "Invalid email format");
 			return false;
 		}
-		if (!txtPhone.getText().matches("0\\d{9}|\\+972\\d{9}")) {
+		// Phone number is now optional, but validate format if provided
+		if (!txtPhone.getText().trim().isEmpty() && !txtPhone.getText().matches("0\\d{9}|\\+972\\d{9}")) {
 			showError("Validation Error", "Invalid phone format (use 0XXXXXXXXX or +972XXXXXXXXX)");
 			return false;
 		}
@@ -256,9 +256,12 @@ public class AttendantController implements Initializable {
 			alert.setTitle("Subscriber Details");
 			alert.setHeaderText("Details for " + parkingSubscriber.getFirstName());
 
+			String phoneNumber = parkingSubscriber.getPhoneNumber();
+			String phoneDisplay = phoneNumber != null ? phoneNumber : "No phone number on file";
+			
 			String details = String.format("User ID: %s\nName: %s\nPhone: %s\nEmail: %s\nCar num: %s\ntype: %s",
 					parkingSubscriber.getSubscriberID(), parkingSubscriber.getFirstName(),
-					parkingSubscriber.getPhoneNumber(), parkingSubscriber.getEmail(), parkingSubscriber.getCarNumber(),
+					phoneDisplay, parkingSubscriber.getEmail(), parkingSubscriber.getCarNumber(),
 					parkingSubscriber.getUserType());
 
 			alert.setContentText(details);
