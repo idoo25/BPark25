@@ -115,17 +115,11 @@ public class SimpleAutoCancellationService {
                         if (userEmail != null && fullName != null) {
                             EmailServiceStub.sendReservationCancelled(userEmail, fullName, String.valueOf(reservationCode));
                         }
-                        
-                            "✅ AUTO-CANCELLED: Reservation %d for %s (Spot %d) - %d minutes late - Email sent",
-                            reservationCode, userName, spotId, minutesLate
-                        ));
                     }
                 }
                 
                 if (cancelledCount > 0) {
-                        "[%s] Auto-cancellation: %d preorder reservations cancelled",
-                        getCurrentTimestamp(), cancelledCount
-                    ));
+                    // Log cancellation summary
                 }
             }
         } catch (SQLException e) {
@@ -177,17 +171,11 @@ public class SimpleAutoCancellationService {
                     
                     if (markAsLateAndNotify(parkingInfoId, userEmail, fullName)) {
                         notifiedCount++;
-                        
-                            "⏰ LATE PICKUP: Parking %d for %s (Spot %d) - %d minutes late - Email sent",
-                            parkingInfoId, userName, spotId, minutesLate
-                        ));
                     }
                 }
                 
                 if (notifiedCount > 0) {
-                        "[%s] Late pickup monitoring: %d customers notified",
-                        getCurrentTimestamp(), notifiedCount
-                    ));
+                    // Log notification summary
                 }
             }
         } catch (SQLException e) {
