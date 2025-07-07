@@ -28,23 +28,18 @@ public class ParkingController {
     public int successFlag;
 
     /**
-     * Constructor that initializes the database connection and creates specialized controllers
+     * Constructs a ParkingController and initializes the database connection and specialized controllers.
+     * 
+     * @param dbname the database name
+     * @param pass the database password
      */
     public ParkingController(String dbname, String pass) {
         DBController.initializeConnection(dbname, pass);
         successFlag = DBController.getInstance().getSuccessFlag();
         
-        // Initialize specialized controllers
         userController = new UserController();
         spotController = new ParkingSpotController();
         reservationController = new ReservationController(userController, spotController);
-        
-        // Initialize auto-cancellation service
-        // autoCancellationService = new SimpleAutoCancellationService(this);
-        
-        if (successFlag == 1) {
-            // startAutoCancellationService();
-        }
     }
 
     // ========== DELEGATION METHODS TO SPECIALIZED CONTROLLERS ==========
@@ -122,19 +117,16 @@ public class ParkingController {
             return "FULL";
         }
         
-        // Get user information
         String userName = getNameByUserID(userID);
         if (userName == null) {
             return "ERROR: User not found";
         }
         
-        // Allocate parking spot
         int spotId = spotController.allocateSpot();
         if (spotId == -1) {
             return "ERROR: No available spots";
         }
         
-        // Create parking record
         String insertQry = """
                 INSERT INTO parkinginfo (User_ID, ParkingSpot_ID, IsOrderedEnum, statusEnum, 
                     Actual_start_time, Ordered_end_time) 

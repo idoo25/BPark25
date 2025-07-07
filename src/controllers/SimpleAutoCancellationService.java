@@ -116,7 +116,6 @@ public class SimpleAutoCancellationService {
                             EmailServiceStub.sendReservationCancelled(userEmail, fullName, String.valueOf(reservationCode));
                         }
                         
-                        System.out.println(String.format(
                             "✅ AUTO-CANCELLED: Reservation %d for %s (Spot %d) - %d minutes late - Email sent",
                             reservationCode, userName, spotId, minutesLate
                         ));
@@ -124,7 +123,6 @@ public class SimpleAutoCancellationService {
                 }
                 
                 if (cancelledCount > 0) {
-                    System.out.println(String.format(
                         "[%s] Auto-cancellation: %d preorder reservations cancelled",
                         getCurrentTimestamp(), cancelledCount
                     ));
@@ -180,7 +178,6 @@ public class SimpleAutoCancellationService {
                     if (markAsLateAndNotify(parkingInfoId, userEmail, fullName)) {
                         notifiedCount++;
                         
-                        System.out.println(String.format(
                             "⏰ LATE PICKUP: Parking %d for %s (Spot %d) - %d minutes late - Email sent",
                             parkingInfoId, userName, spotId, minutesLate
                         ));
@@ -188,7 +185,6 @@ public class SimpleAutoCancellationService {
                 }
                 
                 if (notifiedCount > 0) {
-                    System.out.println(String.format(
                         "[%s] Late pickup monitoring: %d customers notified",
                         getCurrentTimestamp(), notifiedCount
                     ));
@@ -318,7 +314,6 @@ public class SimpleAutoCancellationService {
             int updated = stmt.executeUpdate();
             
             if (updated > 0) {
-                System.out.println("Reservation " + reservationCode + " activated (preorder → active)");
                 return true;
             }
             return false;
@@ -372,7 +367,6 @@ public class SimpleAutoCancellationService {
             }
             
             conn.commit();
-            System.out.println("Reservation " + reservationCode + " finished and spot " + spotId + " freed");
             return true;
             
         } catch (SQLException e) {

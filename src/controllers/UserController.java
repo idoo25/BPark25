@@ -95,7 +95,11 @@ public class UserController {
     }
 
     /**
-     * Gets subscriber information by name (for attendant lookup)
+     * Gets subscriber information by name for attendant lookup operations.
+     * Only retrieves users with subscriber role.
+     * 
+     * @param name the full name of the subscriber to find
+     * @return ParkingSubscriber object if found, null otherwise
      */
     public ParkingSubscriber getSubscriberByName(String name) {
         String qry = "SELECT * FROM users WHERE Name = ? AND UserTypeEnum = 'sub'";
