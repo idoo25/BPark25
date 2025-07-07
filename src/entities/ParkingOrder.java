@@ -20,6 +20,7 @@ public class ParkingOrder implements Serializable {
     private LocalDateTime entryTime;
     private LocalDateTime exitTime;
     private LocalDateTime expectedExitTime;
+    private LocalDateTime estimatedStartTime;
     private boolean isLate;
     private boolean isExtended;
     private String status; // "Active", "Completed"
@@ -128,6 +129,14 @@ public class ParkingOrder implements Serializable {
     
     public void setSpotNumber(String spotNumber) {
         this.spotNumber = spotNumber;
+    }
+    
+    public LocalDateTime getEstimatedStartTime() {
+        return estimatedStartTime;
+    }
+
+    public void setEstimatedStartTime(LocalDateTime estimatedStartTime) {
+        this.estimatedStartTime = estimatedStartTime;
     }
     
     // Utility methods
