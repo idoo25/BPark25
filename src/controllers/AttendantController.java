@@ -93,6 +93,15 @@ public class AttendantController implements Initializable {
 	@FXML
 	private Label lblAttendantInfo;
 
+	// Quick Assist Controls
+	@FXML
+	private TextField txtAssistCode;
+	@FXML
+	private ComboBox<String> comboAssistAction;
+	
+	@FXML private Button btnExit;
+
+
 	private ObservableList<ParkingOrder> activeParkings = FXCollections.observableArrayList();
 
 	/**
@@ -382,9 +391,14 @@ public class AttendantController implements Initializable {
 	 */
 	@FXML
 	private void handleLogout() {
-		BParkClientApp.disconnect();
-		Platform.exit();
-		System.exit(0);
+	    // Return to login screen instead of closing
+	    BParkClientApp.returnToLogin();
+	}
+	
+	@FXML
+	private void handleExit() {
+	    // This maintains the old logout behavior (exit application)
+	    BParkClientApp.exitApplication();
 	}
 
 	/**

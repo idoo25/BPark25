@@ -57,10 +57,12 @@ public class ManagerController implements Initializable {
 	private Label lblManagerInfo;
 	@FXML
 	private Label lblLastUpdate;
+
 	@FXML
 	private TextField UserID;
 	@FXML
 	private TextField subscriberIdField;
+
 
 	// === Subscribers Table ===
 	@FXML
@@ -157,6 +159,10 @@ public class ManagerController implements Initializable {
 	private Label lblReservationCount;
 	@FXML
 	private Label lblCancelled;
+
+	
+	//@FXML private Button btnExit;
+
 
 	private Timeline refreshTimeline;
 	private ObservableList<ParkingReport> currentReports = FXCollections.observableArrayList();
@@ -377,9 +383,17 @@ public class ManagerController implements Initializable {
 	 */
 	@FXML
 	private void handleLogout() {
-		BParkClientApp.disconnect();
-		System.exit(0);
+	    // Return to login screen instead of closing
+	    BParkClientApp.returnToLogin();
 	}
+
+	
+	@FXML
+	private void handleExit() {
+	    // This maintains the old logout behavior (exit application)
+	    BParkClientApp.exitApplication();
+	}
+	
 
 	/**
 	 * Sends a request to fetch the active parkings.
