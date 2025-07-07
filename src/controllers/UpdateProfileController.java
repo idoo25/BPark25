@@ -85,12 +85,12 @@ public class UpdateProfileController{
      */
     @FXML
     private void handleUpdate() {
-        // ✅ Read only what the user typed
+        // Read only what the user typed
         String emailInput = emailField.getText().trim();
         String phoneInput = phoneField.getText().trim();
         String carInput = carNumberField.getText().trim();
 
-        // ✅ If all fields are truly empty (user typed nothing)
+        // If all fields are truly empty (user typed nothing)
         if (emailInput.isEmpty() && phoneInput.isEmpty() && carInput.isEmpty()) {
             statusLabel.setText("Please fill in at least one field before updating.");
             statusLabel.setStyle("-fx-text-fill: red;");
@@ -152,3 +152,4 @@ public void setPhone(String phone) {
 
 
 }
+
