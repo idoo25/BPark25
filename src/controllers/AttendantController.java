@@ -233,12 +233,16 @@ public class AttendantController implements Initializable {
 			showError("Validation Error", "Username is required");
 			return false;
 		}
+		if (txtPhone.getText().trim().isEmpty()) {
+			showError("Validation Error", "Phone number is required");
+			return false;
+		}
 		if (!txtEmail.getText().matches(".+@.+\\..+")) {
 			showError("Validation Error", "Invalid email format");
 			return false;
 		}
-		// Phone number is now optional, but validate format if provided
-		if (!txtPhone.getText().trim().isEmpty() && !txtPhone.getText().matches("0\\d{9}|\\+972\\d{9}")) {
+		// Phone number is required and must be valid format
+		if (!txtPhone.getText().matches("0\\d{9}|\\+972\\d{9}")) {
 			showError("Validation Error", "Invalid phone format (use 0XXXXXXXXX or +972XXXXXXXXX)");
 			return false;
 		}
