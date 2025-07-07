@@ -14,6 +14,12 @@ public class ExtendParkingController {
 	
 
     @FXML private TextField codeField;
+
+    
+    /**
+     * ComboBox for selecting the number of hours to extend the parking.
+     */
+
     @FXML private ComboBox<String> hoursCombo;
     @FXML private Label statusLabel;
    
@@ -43,6 +49,20 @@ public class ExtendParkingController {
         
     }
     
+
+    
+    /**
+     * Updates the status label with a custom message and text color.
+     * <p>
+     * This method is typically used to inform the user of the result of an action, 
+     * such as a successful extension or an input error.
+     * It can be called from other parts of the application.
+     *
+     * @param msg   The text message to be displayed in the status label.
+     * @param color The color of the text, defined using a CSS color name  
+     *              or a hexadecimal color code.
+     */
+
     public void setStatusMessage(String msg, String color) {
         statusLabel.setText(msg);
         statusLabel.setStyle("-fx-text-fill: " + color + ";");

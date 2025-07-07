@@ -50,6 +50,7 @@ public class ParkingOrder implements Serializable {
     /**
      * Flag indicating whether the vehicle exited late (past expected exit time).
      */
+
     private boolean isLate;
 
     /**
@@ -293,7 +294,19 @@ public class ParkingOrder implements Serializable {
         this.spotNumber = spotNumber;
     }
 
-    /**
+    
+    public LocalDateTime getEstimatedStartTime() {
+        return estimatedStartTime;
+    }
+
+    public void setEstimatedStartTime(LocalDateTime estimatedStartTime) {
+        this.estimatedStartTime = estimatedStartTime;
+    }
+    
+    // Utility methods
+
+
+   /**
      * Returns the entry time formatted as "yyyy-MM-dd HH:mm:ss".
      *
      * @return formatted entry time, or "N/A" if entry time is null

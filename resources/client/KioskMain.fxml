@@ -13,6 +13,14 @@
    <padding>
       <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
    </padding>
+
+   <!-- Top Bar with Check Availability -->
+   <HBox alignment="CENTER_RIGHT" prefWidth="400">
+      <Button fx:id="btnCheckAvailability" text="Check Availability"
+              onAction="#handleCheckAvailability"
+              prefWidth="150" prefHeight="30"
+              style="-fx-background-color: #E67E22; -fx-text-fill: white; -fx-background-radius: 5; -fx-font-size: 12px; -fx-font-weight: bold;" />
+   </HBox>
    
    <!-- Logo/Title Section -->
    <VBox alignment="CENTER" spacing="10">

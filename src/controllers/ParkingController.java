@@ -21,20 +21,133 @@ import services.EmailService;
  */
 
 public class ParkingController {
+	
+	
+	/**
+	 * The unique ID of the subscriber (customer) in the system.
+	 */
+	private int subscriberID;
 
-	  private int subscriberID;
-    private String firstName;
-    private String phoneNumber;
-    private String email;
-    private String carNumber;
-    private String subscriberCode;
-    private String userType;
-    protected Connection conn;
-    public int successFlag;
-    private static final int TOTAL_PARKING_SPOTS = 10;
-    private static final double RESERVATION_THRESHOLD = 0.4;
+	/**
+	 * The first name of the subscriber for identification and display.
+	 */
+	private String firstName;
+
+	/**
+	 * The contact phone number of the subscriber.
+	 */
+	private String phoneNumber;
+
+	/**
+	 * The email address of the subscriber for notifications and receipts.
+	 */
+	private String email;
+
+	/**
+	 * The license plate number of the subscriber's car.
+	 */
+	private String carNumber;
+
+	/**
+	 * The user login code or subscriber code used for authentication.
+	 */
+	private String subscriberCode;
+
+	/**
+	 * Indicates the type of user: subscriber ("sub"), employee ("emp"), or manager ("mng").
+	 */
+	private String userType;
+
+	/**
+	 * The active SQL database connection used for running queries.
+	 */
+	private Connection conn;
+
+	/**
+	 * A flag used to indicate success (1) or failure (0) of certain operations.
+	 */
+	public int successFlag;
+
+	/**
+	 * The total number of parking spots in the parking lot (constant).
+	 */
+	private static final int TOTAL_PARKING_SPOTS = 10;
+
+	/**
+	 * The fraction of occupancy above which new reservations are restricted (constant).
+	 */
+	private static final double RESERVATION_THRESHOLD = 0.4;
+
+	/**
+	 * Service that periodically checks and cancels overdue reservations automatically.
+	 */
+	private SimpleAutoCancellationService autoCancellationService;
+
+
     
+	/**
+	 * Constructs a ParkingController instance by initializing the database connection
+	 * with the given database name and password. 
+	 * Also retrieves the success flag to verify the connection status.
+	 *
+	 * @param dbname the name of the database to connect to
+	 * @param pass the password for the database connection
+	 */
+	public ParkingController(String dbname, String pass) {
+	    DBController.initializeConnection(dbname, pass);
+	    successFlag = DBController.getInstance().getSuccessFlag();
+	}
     
+	/**
+	 * Represents the role-based access control levels for the parking system.
+	 * Each role is mapped to a database string value for persistence.
+	 *
+	 * Roles include:
+	 * - SUBSCRIBER: Regular user with subscription privileges ("sub")
+	 * - ATTENDANT: Employee responsible for day-to-day operations ("emp")
+	 * - MANAGER: Administrative user with elevated access ("mng")
+	 */
+	public enum UserRole {
+	    SUBSCRIBER("sub"),
+	    ATTENDANT("emp"), 
+	    MANAGER("mng");
+	    
+	    private final String dbValue;
+
+	    /**
+	     * Constructs a UserRole with the associated database string value.
+	     *
+	     * @param dbValue the string value stored in the database
+	     */
+	    UserRole(String dbValue) {
+	        this.dbValue = dbValue;
+	    }
+
+	    /**
+	     * Returns the database string value for this user role.
+	     *
+	     * @return the string representation of the role in the database
+	     */
+	    public String getDbValue() {
+	        return dbValue;
+	    }
+
+	    /**
+	     * Retrieves the corresponding UserRole enum for a given database string value.
+	     *
+	     * @param dbValue the string stored in the database
+	     * @return the matching UserRole, or null if no match is found
+	     */
+	    public static UserRole fromDbValue(String dbValue) {
+	        for (UserRole role : values()) {
+	            if (role.dbValue.equals(dbValue)) {
+	                return role;
+	            }
+	        }
+	        return null;
+	    }
+	}
+	
     // Getters
     public int getSubscriberID() { return subscriberID; }
     public String getFirstName() { return firstName; }
@@ -53,41 +166,13 @@ public class ParkingController {
     public void setSubscriberCode(String subscriberCode) { this.subscriberCode = subscriberCode; }
     public void setUserType(String userType) { this.userType = userType; }
 
-    
-    /**
-     * Role-based access control for all parking operations
-     */
-    public enum UserRole {
-        SUBSCRIBER("sub"),
-        ATTENDANT("emp"), 
-        MANAGER("mng");
-        
-        private final String dbValue;
-        
-        UserRole(String dbValue) {
-            this.dbValue = dbValue;
-        }
-        
-        public String getDbValue() {
-            return dbValue;
-        }
-        
-        public static UserRole fromDbValue(String dbValue) {
-            for (UserRole role : values()) {
-                if (role.dbValue.equals(dbValue)) {
-                    return role;
-                }
-            }
-            return null;
-        }
-    }
-
     /**
      * Get user role from database
      */
     private UserRole getUserRole(String userName) {
         String qry = "SELECT UserTypeEnum FROM users WHERE UserName = ?";
-        
+		Connection conn = DBController.getInstance().getConnection();
+
         try (PreparedStatement stmt = conn.prepareStatement(qry)) {
             stmt.setString(1, userName);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -110,48 +195,10 @@ public class ParkingController {
         return userRole == requiredRole;
     }
 
-    /**
-     * Check if user has any of the required roles
-     */
-    private boolean hasAnyRole(String userName, UserRole... requiredRoles) {
-        UserRole userRole = getUserRole(userName);
-        if (userRole == null) return false;
-        
-        for (UserRole role : requiredRoles) {
-            if (userRole == role) return true;
-        }
-        return false;
-    }
-    
-    // Auto-cancellation service
-    private SimpleAutoCancellationService autoCancellationService;
-
-
-
     public Connection getConnection() {
         return conn;
     }
 
-
-//    public void connectToDB(String path, String pass) {
-//        try {
-//            Class.forName("com.mysql.cj.jdbc.Driver");
-//            System.out.println("Driver definition succeed");
-//        } catch (Exception ex) {
-//            System.out.println("Driver definition failed");
-//        }
-//
-//        try {
-//            conn = DriverManager.getConnection(path, "root", pass);
-//            System.out.println("SQL connection succeed");
-//            successFlag = 1;
-//        } catch (SQLException ex) {
-//            System.out.println("SQLException: " + ex.getMessage());
-//            System.out.println("SQLState: " + ex.getSQLState());
-//            System.out.println("VendorError: " + ex.getErrorCode());
-//            successFlag = 2;
-//        }
-//    }
 
 	/**
 	 * Start the automatic monitoring service (cancellations + late pickups)
@@ -321,17 +368,10 @@ public class ParkingController {
 		} catch (Exception e) {
 			System.out.println("Error making reservation: " + e.getMessage());
 			return "Reservation failed: " + e.getMessage();
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return "Reservation failed";
-	}
-
-	public ParkingController(String dbname, String pass) {
-		DBController.initializeConnection(dbname, pass);
-		successFlag = DBController.getInstance().getSuccessFlag();
-//		conn = DBController.getInstance().getConnection();
-
 	}
 
 	public String enterParking(int userID) {
@@ -348,8 +388,8 @@ public class ParkingController {
 		} catch (SQLException e) {
 			System.out.println("Error checking active parking: " + e.getMessage());
 			return "Could not verify active parking.";
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 
 		// Check if parking is full
@@ -390,8 +430,8 @@ public class ParkingController {
 		} catch (SQLException e) {
 			System.out.println("Error handling entry: " + e.getMessage());
 			return "Entry failed due to database error.";
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 	}
 
@@ -456,8 +496,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error handling reservation entry: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return "Invalid reservation code or reservation not in preorder status.";
 	}
@@ -476,8 +516,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error getting available spots: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return 0;
 	}
@@ -512,8 +552,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error sending lost code: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 
 		return "No active parking session found for this user.";
@@ -560,28 +600,13 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error finding available spot for time slot: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 
 		System.out.println("No available spots for time slot " + startTime + " to " + endTime);
 		return -1;
 	}
-
-// Also update the getAvailableParkingSpots method to consider time slots:
-
-	/**
-	 * Gets the number of available parking spots for immediate use (NOW) For
-	 * reservations, use getAvailableSpotsForTimeSlot() instead
-	 */
-	// ******************************************************************************************************************************
-//	public int getAvailableParkingSpots() {
-//		LocalDateTime now = LocalDateTime.now();
-//		LocalDateTime fourHoursLater = now.plusHours(4);
-//		return getAvailableSpotsForTimeSlot(now, fourHoursLater);
-//	}
-
-	// ******************************************************************************************************************************
 
 	/**
 	 * ADD THIS METHOD - Get count of available spots for a specific time slot
@@ -617,8 +642,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error getting available spots for time slot: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return 0;
 	}
@@ -648,68 +673,8 @@ public class ParkingController {
 		}
 	}
 
-	/**
-	 * Handles parking entry with subscriber code (immediate parking)
-	 */
-	public String enterParking(String userName) {
-		// Get user ID
-		int userID = getUserID(userName);
-		if (userID == -1) {
-			return "Invalid user code";
-		}
 
-		// Check if spots are available
-		if (getAvailableParkingSpots() <= 0) {
-			return "No parking spots available";
-		}
-
-		// Find available parking spot
-		int spotID = getAvailableParkingSpotID();
-		if (spotID == -1) {
-			return "No available parking spot found";
-		}
-
-		LocalDateTime now = LocalDateTime.now();
-		LocalDateTime estimatedEnd = now.plusHours(4); // Default 4 hours
-
-		// Create parking info record for immediate parking
-		String qry = """
-				INSERT INTO parkinginfo
-				(ParkingSpot_ID, User_ID, Date_Of_Placing_Order, Actual_start_time,
-				 Estimated_start_time, Estimated_end_time, IsOrderedEnum, IsLate, IsExtended, statusEnum)
-				VALUES (?, ?, NOW(), ?, ?, ?, 'no', 'no', 'no', 'active')
-				""";
-		Connection conn = DBController.getInstance().getConnection();
-		try (PreparedStatement stmt = conn.prepareStatement(qry, PreparedStatement.RETURN_GENERATED_KEYS)) {
-			stmt.setInt(1, spotID);
-			stmt.setInt(2, userID);
-			stmt.setTimestamp(3, Timestamp.valueOf(now));
-			stmt.setTimestamp(4, Timestamp.valueOf(now));
-			stmt.setTimestamp(5, Timestamp.valueOf(estimatedEnd));
-			stmt.executeUpdate();
-
-			// Get the generated ParkingInfo_ID (parking code)
-			try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-				if (generatedKeys.next()) {
-					int parkingCode = generatedKeys.getInt(1);
-
-					// Mark parking spot as occupied
-					updateParkingSpotStatus(spotID, true);
-
-					return "Entry successful. Parking code: " + parkingCode + ". Spot: " + spotID;
-				}
-			}
-		} catch (SQLException e) {
-			System.out.println("Error handling entry: " + e.getMessage());
-			return "Entry failed";
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
-		}
-		return "Entry failed";
-	}
-
-	/**
-	 * ATTENDANT-ONLY: Register new subscriber (PDF requirement) Only attendants can
+	 /** ATTENDANT-ONLY: Register new subscriber (PDF requirement) Only attendants can
 	 * register new users
 	 */
 	public String registerNewSubscriber(String attendantUserName, String name, String phone, String email,
@@ -720,14 +685,6 @@ public class ParkingController {
 		}
 
 		// Continue with existing registration logic
-		return registerNewSubscriberInternal(name, phone, email, carNumber, userName);
-	}
-
-	/**
-	 * For backwards compatibility - allow registration without attendant check This
-	 * can be used by system initialization or admin functions
-	 */
-	public String registerNewSubscriber(String name, String phone, String email, String carNumber, String userName) {
 		return registerNewSubscriberInternal(name, phone, email, carNumber, userName);
 	}
 
@@ -763,8 +720,8 @@ public class ParkingController {
 		} catch (SQLException e) {
 			System.out.println("Error checking username: " + e.getMessage());
 			return "Error checking username availability";
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 
 		// Insert new subscriber
@@ -798,8 +755,8 @@ public class ParkingController {
 		} catch (SQLException e) {
 			System.out.println("Registration failed: " + e.getMessage());
 			return "Registration failed: " + e.getMessage();
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 
 		return "Registration failed: Unknown error";
@@ -889,71 +846,11 @@ public class ParkingController {
 			return "Invalid parking code format";
 		} catch (SQLException e) {
 			System.out.println("Error handling exit: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return "Invalid parking code or already exited";
 	}
-
-//	/**
-//	 * Extends parking time
-//	 */
-//	public String extendParkingTime(String parkingCodeStr, int additionalHours) {
-//		if (additionalHours < 1 || additionalHours > 4) {
-//			return "Can only extend parking by 1-4 hours";
-//		}
-//
-//		try {
-//			int parkingCode = Integer.parseInt(parkingCodeStr);
-//
-//			// Get user info for email notification
-//			String getUserQry = """
-//					SELECT pi.*, u.Email, u.Name
-//					FROM parkinginfo pi
-//					JOIN users u ON pi.User_ID = u.User_ID
-//					WHERE pi.ParkingInfo_ID = ? AND pi.statusEnum = 'active'
-//					""";
-//
-//			try (PreparedStatement stmt = conn.prepareStatement(getUserQry)) {
-//				stmt.setInt(1, parkingCode);
-//				try (ResultSet rs = stmt.executeQuery()) {
-//					if (rs.next()) {
-//						Timestamp currentEstimatedEnd = rs.getTimestamp("Estimated_end_time");
-//						String userEmail = rs.getString("Email");
-//						String userName = rs.getString("Name");
-//
-//						LocalDateTime newEstimatedEnd = currentEstimatedEnd.toLocalDateTime()
-//								.plusHours(additionalHours);
-//
-//						String updateQry = """
-//								UPDATE parkinginfo
-//								SET Estimated_end_time = ?, IsExtended = 'yes'
-//								WHERE ParkingInfo_ID = ?
-//								""";
-//
-//						try (PreparedStatement updateStmt = conn.prepareStatement(updateQry)) {
-//							updateStmt.setTimestamp(1, Timestamp.valueOf(newEstimatedEnd));
-//							updateStmt.setInt(2, parkingCode);
-//							updateStmt.executeUpdate();
-//
-//							// SEND EMAIL NOTIFICATION
-//							if (userEmail != null && userName != null) {
-//								EmailService.sendExtensionConfirmation(userEmail, userName, parkingCodeStr,
-//										additionalHours, newEstimatedEnd.toString());
-//							}
-//
-//							return "Parking time extended by " + additionalHours + " hours until " + newEstimatedEnd;
-//						}
-//					}
-//				}
-//			}
-//		} catch (NumberFormatException e) {
-//			return "Invalid parking code format";
-//		} catch (SQLException e) {
-//			System.out.println("Error extending parking time: " + e.getMessage());
-//		}
-//		return "Invalid parking code or parking session not active";
-//	}
 
 	/**
 	 * Sends lost parking code to user
@@ -983,8 +880,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error sending lost code: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return "No active parking session found";
 	}
@@ -1017,6 +914,7 @@ public class ParkingController {
 					Timestamp actualStart = rs.getTimestamp("Actual_start_time");
 					Timestamp actualEnd = rs.getTimestamp("Actual_end_time");
 					Timestamp estimatedEnd = rs.getTimestamp("Estimated_end_time");
+					Timestamp estimatedStart = rs.getTimestamp("Estimated_start_time");
 
 					if (actualStart != null) {
 						order.setEntryTime(actualStart.toLocalDateTime());
@@ -1026,6 +924,9 @@ public class ParkingController {
 					}
 					if (estimatedEnd != null) {
 						order.setExpectedExitTime(estimatedEnd.toLocalDateTime());
+					}
+					if (estimatedStart != null) {
+					    order.setEstimatedStartTime(estimatedStart.toLocalDateTime());
 					}
 
 					order.setLate("yes".equals(rs.getString("IsLate")));
@@ -1037,8 +938,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error getting parking history: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return history;
 	}
@@ -1084,8 +985,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error getting active parkings: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return activeParkings;
 	}
@@ -1114,8 +1015,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error getting user info for cancellation: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 
 		String qry = """
@@ -1141,8 +1042,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error cancelling reservation: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return "Reservation not found or already cancelled/finished";
 	}
@@ -1182,8 +1083,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error initializing parking spots: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 	}
 
@@ -1201,8 +1102,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error getting user ID: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return -1;
 	}
@@ -1218,28 +1119,10 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error getting available spot ID: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return -1;
-	}
-
-	private boolean isParkingSpotAvailable(int spotID) {
-		String qry = "SELECT isOccupied FROM ParkingSpot WHERE ParkingSpot_ID = ?";
-		Connection conn = DBController.getInstance().getConnection();
-		try (PreparedStatement stmt = conn.prepareStatement(qry)) {
-			stmt.setInt(1, spotID);
-			try (ResultSet rs = stmt.executeQuery()) {
-				if (rs.next()) {
-					return !rs.getBoolean("isOccupied");
-				}
-			}
-		} catch (SQLException e) {
-			System.out.println("Error checking spot availability: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
-		}
-		return false;
 	}
 
 	private void updateParkingSpotStatus(int spotID, boolean isOccupied) {
@@ -1251,8 +1134,8 @@ public class ParkingController {
 			stmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("Error updating parking spot status: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 	}
 
@@ -1276,8 +1159,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error sending late notification: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 	}
 
@@ -1293,8 +1176,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error checking username availability: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 
 		return false;
@@ -1313,8 +1196,8 @@ public class ParkingController {
 			stmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("Error freeing spot for reservation: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 	}
 
@@ -1354,8 +1237,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error getting reservation info for cancellation: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 
 		// Update reservation status to cancelled
@@ -1386,8 +1269,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error cancelling reservation: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 
 		return "Reservation not found or already cancelled/finished";
@@ -1408,8 +1291,8 @@ public class ParkingController {
 			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return subscriber;
 	}
@@ -1431,8 +1314,8 @@ public class ParkingController {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 
 		return list;
@@ -1528,8 +1411,8 @@ public class ParkingController {
 			return "Invalid parking code format.";
 		} catch (SQLException e) {
 			System.out.println("Error extending parking time: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 
 		return "Invalid parking code or parking session not active.";
@@ -1586,8 +1469,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error updating subscriber info: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 
 		return "Failed to update subscriber information";
@@ -1611,18 +1494,12 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error checking user ID: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return false;
 	}
 
-
- 
- 
-
-   
-   
 	/**
 	 * Checks whether a user with the given username exists in the database.
 	 *
@@ -1641,8 +1518,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error checking username: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return false;
 	}
@@ -1661,12 +1538,11 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error getting name by username and userID: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return null;
 	}
-
 
 	public String getNameByUserID(int userID) {
 		String qry = "SELECT Name FROM users WHERE User_ID = ?";
@@ -1680,8 +1556,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error getting name by user ID: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return null;
 	}
@@ -1699,8 +1575,8 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error checking parking availability: " + e.getMessage());
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 		return true; // assume full on DB error
 	}
@@ -1762,9 +1638,8 @@ public class ParkingController {
 			System.out.println("Error retrieving car: " + e.getMessage());
 			e.printStackTrace();
 			return "Error retrieving car.";
-		}finally {
-		    DBController.getInstance().releaseConnection(conn);
+		} finally {
+			DBController.getInstance().releaseConnection(conn);
 		}
 	}
-
 }

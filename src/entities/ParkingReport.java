@@ -1,3 +1,9 @@
+/**
+ * Represents a parking report in the ParkB system.
+ * Contains statistical data about parking usage,
+ * subscriber status, and system performance.
+ * Used in generating dashboard data, monthly summaries, and system insights.
+ */
 package entities;
 
 import java.io.Serializable;
@@ -5,106 +11,103 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-/**
- * Represents a parking report in the ParkB system. Contains statistical data
- * about parking usage, subscriber status, and system performance.
- */
 public class ParkingReport implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	/** The type of the report (e.g., "PARKING_TIME", "SUBSCRIBER_STATUS"). */
+
+	/** The type of the report: "PARKING_TIME" or "SUBSCRIBER_STATUS" */
 	private String reportType;
 
-	/** The date the report refers to. */
+	/** The date the report was generated or references */
 	private LocalDate reportDate;
 
-	// Parking Time Report fields
-
-	/** Total number of parking sessions. */
+	// Parking Time Report Fields
+	/** Total number of parking sessions */
 	private int totalParkings;
 
-	/** Average parking duration in minutes. */
+	/** Average parking duration in minutes */
 	private double averageParkingTime;
 
-	/** Number of late exits. */
+	/** Number of sessions with late exits */
 	private int lateExits;
 
-	/** Number of parking extensions. */
+	/** Number of extended parking sessions */
 	private int extensions;
 
-	/** Minimum parking time recorded. */
+	/** Minimum recorded parking time in minutes */
 	private int minParkingTime;
 
-	/** Maximum parking time recorded. */
+	/** Maximum recorded parking time in minutes */
 	private int maxParkingTime;
 
-	/** Number of immediate (non-reserved) parkings. */
+	/** Number of immediate parking sessions */
 	private int imidiateParkings;
 
-	// Subscriber Status Report fields
-
-	/** Number of active subscribers. */
+	// Subscriber Status Report Fields
+	/** Number of currently active subscribers */
 	private int activeSubscribers;
 
-	/** Total number of orders made. */
+	/** Total number of parking orders */
 	private int totalOrders;
 
-	/** Number of reservations made. */
+	/** Number of reserved parkings */
 	private int reservations;
 
-	/** Number of immediate entries (non-reserved). */
+	/** Number of immediate entry parkings */
 	private int immediateEntries;
 
-	/** Number of cancelled reservations. */
+	/** Number of cancelled reservations */
 	private int cancelledReservations;
 
-	/** Average session duration in minutes. */
+	/** Average duration of sessions in minutes */
 	private double averageSessionDuration;
 
-	// --- Fields for graphs ---
-
-	/** Map of total parking time per day (day -> minutes). */
+	// Graph-related fields
+	/** Total parking time per day: date -> minutes */
 	private Map<String, Integer> totalParkingTimePerDay;
 
-	/** Map of hourly distribution (hour -> count). */
+	/** Hourly distribution of parkings: hour -> count */
 	private Map<String, Integer> hourlyDistribution;
 
-	/** Number of parkings without extensions. */
+	/** Number of parkings without extensions */
 	private int noExtensions;
 
-	/** Map of late exits by hour (hour -> count). */
+	/** Late exits grouped by hour: hour -> count */
 	private Map<String, Integer> lateExitsByHour;
 
-	/** Number of late subscribers. */
+	/** Number of subscribers with at least one late exit */
 	private int lateSubscribers;
 
-	/** Total number of subscribers. */
+	/** Total number of subscribers in the system */
 	private int totalSubscribers;
 
-	/** Map of subscribers per day (day -> count). */
+	/** Number of subscribers per day: date -> count */
 	private Map<String, Integer> subscribersPerDay;
 
-	/** Number of used reservations. */
+	/** Number of used reservations */
 	private int usedReservations;
 
-	/** Number of pre-order reservations. */
+	/** Number of pre-ordered reservations */
 	private int preOrderReservations;
 
-	/** Total hours in the reported month. */
+	/** Total hours of parking recorded in the month */
 	private int totalMonthHours;
 
-	/** Number of occupied parking spots. */
+	/** Number of currently occupied parking spots */
 	private int occupied;
 
-	/** Default constructor. */
+	private int totalSpots;
+
+	/** Default constructor */
+
 	public ParkingReport() {
 	}
 
 	/**
-	 * Constructs a ParkingReport with report type and date.
-	 *
-	 * @param reportType the type of the report
+	 * Constructs a parking report with given type and date
+	 * 
+	 * @param reportType the type of report
 	 * @param reportDate the date of the report
 	 */
 	public ParkingReport(String reportType, LocalDate reportDate) {
@@ -112,7 +115,8 @@ public class ParkingReport implements Serializable {
 		this.reportDate = reportDate;
 	}
 
-	/** @return the report type */
+
+	// Getters and Setters
 	public String getReportType() {
 		return reportType;
 	}
@@ -252,61 +256,17 @@ public class ParkingReport implements Serializable {
 		this.averageSessionDuration = averageSessionDuration;
 	}
 
-	/** @return formatted report date (yyyy-MM-dd) */
-	public String getFormattedReportDate() {
-		if (reportDate != null) {
-			return reportDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-		}
-		return "";
-	}
 
-	/** @return formatted average parking time in hours and minutes */
-	public String getFormattedAverageParkingTime() {
-		long hours = (long) (averageParkingTime / 60);
-		long minutes = (long) (averageParkingTime % 60);
-		return String.format("%d hours, %d minutes", hours, minutes);
-	}
 
-	/** @return late exit percentage (scale of 0-10) */
-	public double getLateExitPercentage() {
-		if (totalParkings > 0) {
-			return (double) lateExits / totalParkings * 10;
-		}
-		return 0.0;
-	}
 
-	/** @return extension percentage (scale of 0-10) */
-	public double getExtensionPercentage() {
-		if (totalParkings > 0) {
-			return (double) extensions / totalParkings * 10;
-		}
-		return 0.0;
-	}
-
-	/** @return reservation percentage (scale of 0-10) */
-	public double getReservationPercentage() {
-		if (totalOrders > 0) {
-			return (double) reservations / totalOrders * 10;
-		}
-		return 0.0;
-	}
-
-	/** @return string representation of ParkingReport */
-	@Override
-	public String toString() {
-		return "ParkingReport{" + "reportType='" + reportType + '\'' + ", reportDate=" + reportDate + ", totalParkings="
-				+ totalParkings + ", averageParkingTime=" + averageParkingTime + ", lateExits=" + lateExits
-				+ ", extensions=" + extensions + ", activeSubscribers=" + activeSubscribers + ", totalOrders="
-				+ totalOrders + ", reservations=" + reservations + ", immediateEntries=" + immediateEntries + '}';
-	}
-
-	/** @return total parking time per day */
 	public Map<String, Integer> getTotalParkingTimePerDay() {
 		return totalParkingTimePerDay;
 	}
 
-	/** @param m total parking time per day to set */
-	public void setTotalParkingTimePerDay(java.util.Map<String, Integer> m) {
+
+
+	public void setTotalParkingTimePerDay(Map<String, Integer> m) {
+
 		this.totalParkingTimePerDay = m;
 	}
 
@@ -315,8 +275,8 @@ public class ParkingReport implements Serializable {
 		return hourlyDistribution;
 	}
 
-	/** @param m hourly distribution to set */
-	public void setHourlyDistribution(java.util.Map<String, Integer> m) {
+
+	public void setHourlyDistribution(Map<String, Integer> m) {
 		this.hourlyDistribution = m;
 	}
 
@@ -335,8 +295,9 @@ public class ParkingReport implements Serializable {
 		return lateExitsByHour;
 	}
 
-	/** @param m late exits by hour to set */
-	public void setLateExitsByHour(java.util.Map<String, Integer> m) {
+
+
+	public void setLateExitsByHour(Map<String, Integer> m) {
 		this.lateExitsByHour = m;
 	}
 
@@ -365,8 +326,8 @@ public class ParkingReport implements Serializable {
 		return subscribersPerDay;
 	}
 
-	/** @param m subscribers per day to set */
-	public void setSubscribersPerDay(java.util.Map<String, Integer> m) {
+
+	public void setSubscribersPerDay(Map<String, Integer> m) {
 		this.subscribersPerDay = m;
 	}
 
@@ -405,18 +366,96 @@ public class ParkingReport implements Serializable {
 		return occupied;
 	}
 
-	/** @param imidiateParkings number of occupied spots to set (stored in imidiateParkings) */
-	public void setOccupied(int imidiateParkings) {
-		this.imidiateParkings = imidiateParkings;
+	public void setOccupied(int occupied) {
+		this.occupied = occupied;
 	}
 
 	/** @return number of immediate parkings (actually returns occupied) */
 	public int getImidiateParkings() {
-		return occupied;
+		return imidiateParkings;
 	}
 
 	/** @param imidiateParkings number of immediate parkings to set */
 	public void setImidiateParkings(int imidiateParkings) {
 		this.imidiateParkings = imidiateParkings;
 	}
+
+
+
+	public int getTotalSpots() {
+		return totalSpots;
+	}
+
+	public void setTotalSpots(int totalSpots) {
+		this.totalSpots = totalSpots;
+	}
+	// Utility methods
+
+	/**
+	 * Returns the report date in yyyy-MM-dd format
+	 * 
+	 * @return formatted date string
+	 */
+	public String getFormattedReportDate() {
+		if (reportDate != null) {
+			return reportDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+		}
+		return "";
+	}
+
+	/**
+	 * Returns average parking time formatted as "X hours, Y minutes"
+	 * 
+	 * @return formatted time string
+	 */
+	public String getFormattedAverageParkingTime() {
+		long hours = (long) (averageParkingTime / 60);
+		long minutes = (long) (averageParkingTime % 60);
+		return String.format("%d hours, %d minutes", hours, minutes);
+	}
+
+	/**
+	 * Calculates the percentage of late exits among total parkings
+	 * 
+	 * @return percentage from 0 to 100
+	 */
+	public double getLateExitPercentage() {
+		if (totalParkings > 0) {
+			return (double) lateExits / totalParkings * 100;
+		}
+		return 0.0;
+	}
+
+	/**
+	 * Calculates the percentage of extended sessions among total parkings
+	 * 
+	 * @return percentage from 0 to 100
+	 */
+	public double getExtensionPercentage() {
+		if (totalParkings > 0) {
+			return (double) extensions / totalParkings * 100;
+		}
+		return 0.0;
+	}
+
+	/**
+	 * Calculates the percentage of reservations among total orders
+	 * 
+	 * @return percentage from 0 to 100
+	 */
+	public double getReservationPercentage() {
+		if (totalOrders > 0) {
+			return (double) reservations / totalOrders * 100;
+		}
+		return 0.0;
+	}
+
+	@Override
+	public String toString() {
+		return "ParkingReport{" + "reportType='" + reportType + '\'' + ", reportDate=" + reportDate + ", totalParkings="
+				+ totalParkings + ", averageParkingTime=" + averageParkingTime + ", lateExits=" + lateExits
+				+ ", extensions=" + extensions + ", activeSubscribers=" + activeSubscribers + ", totalOrders="
+				+ totalOrders + ", reservations=" + reservations + ", immediateEntries=" + immediateEntries + '}';
+	}
 }
+

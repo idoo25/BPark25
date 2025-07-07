@@ -15,6 +15,8 @@ import java.util.Optional;
 
 import entities.Message;
 import static entities.Message.MessageType.*;
+
+import client.BParkClientApp;
 import client.BParkKioskApp;
 
 public class KioskController {
@@ -30,7 +32,15 @@ public class KioskController {
     public static void setMainStage(Stage stage) {
         mainStage = stage;
     }
-
+    
+    @FXML
+    private void handleCheckAvailability() {
+        // Send a request to the server 
+        Message checkMsg = new Message(Message.MessageType.CHECK_PARKING_AVAILABILITY, null);
+        BParkKioskApp.sendMessage(checkMsg);
+        
+    }
+    
     @FXML
     private void handleLoginByID() {
         Platform.runLater(() -> {
@@ -112,9 +122,7 @@ public class KioskController {
 
     public static void handleKioskLoginResult(Object content) {
         if (content instanceof String response) {
-            if (response.equals("FULL")) {
-                showAlertStatic("Parking Full", "Parking is full, try later.");
-            } else if (!response.isEmpty()) {
+           if (!response.isEmpty()) {
                 // Split "John Doe,4"
                 String[] parts = response.split(",");
                 if (parts.length == 2) {
