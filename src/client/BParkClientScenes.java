@@ -3,9 +3,12 @@ package client;
 import controllers.AttendantController;
 import controllers.ExtendParkingController;
 import controllers.ManagerController;
+import controllers.ParkingHistoryController;
 import controllers.SubscriberController;
 import controllers.UpdateProfileController;
 import entities.Message;
+import entities.ParkingOrder;
+import java.util.ArrayList;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -211,5 +214,39 @@ public class BParkClientScenes {
 		// Get the primary stage or any showing stage
 		return Stage.getWindows().stream().filter(window -> window instanceof Stage && window.isShowing())
 				.map(window -> (Stage) window).findFirst().orElse(new Stage());
+	}
+
+	/**
+	 * Opens a parking history window with the provided history data.
+	 * 
+	 * @param history List of parking orders to display
+	 */
+	public static void showParkingHistoryWindow(ArrayList<ParkingOrder> history) {
+		try {
+			// Load the parking history FXML
+			FXMLLoader loader = new FXMLLoader(BParkClientScenes.class.getResource("/client/ParkingHistoryView.fxml"));
+			Parent root = loader.load();
+			
+			// Get the controller and set up the data
+			ParkingHistoryController controller = loader.getController();
+			if (currentUser != null) {
+				controller.setUserName(currentUser);
+			}
+			controller.loadHistory(history);
+			
+			// Create a new stage for the parking history window
+			Stage historyStage = new Stage();
+			Scene scene = new Scene(root);
+			scene.getStylesheets().add(BParkClientScenes.class.getResource("/css/BParkStyle.css").toExternalForm());
+			
+			historyStage.setTitle("Parking History - " + (currentUser != null ? currentUser : "User"));
+			historyStage.setScene(scene);
+			historyStage.setResizable(true);
+			historyStage.show();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Error opening parking history window: " + e.getMessage());
+		}
 	}
 }

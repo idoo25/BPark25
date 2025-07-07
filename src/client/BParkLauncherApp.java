@@ -55,7 +55,7 @@ public class BParkLauncherApp extends Application {
 
 			return client.isConnected();
 		} catch (Exception e) {
-			e.printStackTrace();
+
 			return false;
 		}
 	}

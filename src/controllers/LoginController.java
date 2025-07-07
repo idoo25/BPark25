@@ -223,8 +223,10 @@ public class LoginController implements Initializable {
 			lblStatus.setText("Login successful! Loading interface...");
 			lblStatus.setStyle("-fx-text-fill: #27AE60;");
 
-			// Close login window
-			btnLogin.getScene().getWindow().hide();
+			// Close login window - with null safety check
+			if (btnLogin != null && btnLogin.getScene() != null && btnLogin.getScene().getWindow() != null) {
+				btnLogin.getScene().getWindow().hide();
+			}
 		});
 	}
 

@@ -58,7 +58,7 @@ public class SimpleAutoCancellationService {
             } catch (Exception e) {
                 System.err.println("Error in auto-monitoring service: " + e.getMessage());
             }
-        }, 0, 1, TimeUnit.MINUTES);
+        }, 0, 30, TimeUnit.SECONDS);
     }
     
     /**

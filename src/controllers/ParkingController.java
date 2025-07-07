@@ -27,6 +27,10 @@ public class ParkingController {
 	 * The unique ID of the subscriber (customer) in the system.
 	 */
 	private int subscriberID;
+	
+	
+	
+	
 
 	/**
 	 * The first name of the subscriber for identification and display.
@@ -96,6 +100,11 @@ public class ParkingController {
 	public ParkingController(String dbname, String pass) {
 	    DBController.initializeConnection(dbname, pass);
 	    successFlag = DBController.getInstance().getSuccessFlag();
+	    autoCancellationService = new SimpleAutoCancellationService(this);
+	    
+	    if (successFlag == 1) {
+	        startAutoCancellationService();
+	    }
 	}
     
 	/**
@@ -1058,34 +1067,39 @@ public class ParkingController {
 	 * Initializes parking spots if they don't exist
 	 */
 	public void initializeParkingSpots() {
-		Connection conn = DBController.getInstance().getConnection();
+    Connection conn = DBController.getInstance().getConnection();
 
-		try {
-			// Check if spots already exist
-			String checkQry = "SELECT COUNT(*) FROM ParkingSpot";
-			try (PreparedStatement stmt = conn.prepareStatement(checkQry)) {
-				try (ResultSet rs = stmt.executeQuery()) {
-					if (rs.next() && rs.getInt(1) == 0) {
-						// Initialize parking spots - AUTO_INCREMENT will handle ParkingSpot_ID
-						String insertQry = "INSERT INTO ParkingSpot (isOccupied) VALUES (false)";
-						try (PreparedStatement insertStmt = conn.prepareStatement(insertQry)) {
-							for (int i = 1; i <= TOTAL_PARKING_SPOTS; i++) {
-								insertStmt.executeUpdate();
-							}
-						}
-						System.out.println("Successfully initialized " + TOTAL_PARKING_SPOTS
-								+ " parking spots with AUTO_INCREMENT");
-					} else {
-						System.out.println("Parking spots already exist: " + rs.getInt(1) + " spots found");
-					}
-				}
-			}
-		} catch (SQLException e) {
-			System.out.println("Error initializing parking spots: " + e.getMessage());
-		} finally {
-			DBController.getInstance().releaseConnection(conn);
-		}
-	}
+    try {
+        // Check if spots already exist
+        String checkQry = "SELECT COUNT(*) FROM ParkingSpot";
+        try (PreparedStatement stmt = conn.prepareStatement(checkQry)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) == 0) {
+                    // Initialize parking spots - AUTO_INCREMENT will handle ParkingSpot_ID
+                    String insertQry = "INSERT INTO ParkingSpot (isOccupied) VALUES (false)";
+                    try (PreparedStatement insertStmt = conn.prepareStatement(insertQry)) {
+                        for (int i = 1; i <= TOTAL_PARKING_SPOTS; i++) {
+                            insertStmt.executeUpdate();
+                        }
+                    }
+                    System.out.println("Successfully initialized " + TOTAL_PARKING_SPOTS
+                            + " parking spots with AUTO_INCREMENT");
+                } else {
+                    System.out.println("Parking spots already exist: " + rs.getInt(1) + " spots found");
+                }
+            }
+        }
+    } catch (SQLException e) {
+        System.out.println("Error initializing parking spots: " + e.getMessage());
+    } finally {
+        DBController.getInstance().releaseConnection(conn);
+    }
+    
+ 
+    if (autoCancellationService != null && !autoCancellationService.isRunning()) {
+        startAutoCancellationService();
+    }
+}
 
 	// ========== HELPER METHODS ==========
 
