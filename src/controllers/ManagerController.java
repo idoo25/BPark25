@@ -30,6 +30,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.util.Duration;
 
 /**
@@ -57,9 +58,17 @@ public class ManagerController implements Initializable {
 	@FXML
 	private Label lblLastUpdate;
 
+	@FXML
+	private TextField UserID;
+	@FXML
+	private TextField subscriberIdField;
+
+
 	// === Subscribers Table ===
 	@FXML
 	private TableView<ParkingSubscriber> tableSubscribers;
+	@FXML
+	private TableColumn<ParkingSubscriber, String> colUserID;
 	@FXML
 	private TableColumn<ParkingSubscriber, String> colSubName;
 	@FXML
@@ -150,8 +159,10 @@ public class ManagerController implements Initializable {
 	private Label lblReservationCount;
 	@FXML
 	private Label lblCancelled;
+
 	
 	//@FXML private Button btnExit;
+
 
 	private Timeline refreshTimeline;
 	private ObservableList<ParkingReport> currentReports = FXCollections.observableArrayList();
@@ -184,6 +195,8 @@ public class ManagerController implements Initializable {
 		}
 
 		if (tableSubscribers != null) {
+			colUserID.setCellValueFactory(
+					cellData -> new SimpleStringProperty(cellData.getValue().getSubscriberID() + ""));
 			colSubName.setCellValueFactory(
 					cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getFirstName()));
 			colSubPhone.setCellValueFactory(
@@ -373,6 +386,7 @@ public class ManagerController implements Initializable {
 	    // Return to login screen instead of closing
 	    BParkClientApp.returnToLogin();
 	}
+
 	
 	@FXML
 	private void handleExit() {
@@ -380,7 +394,7 @@ public class ManagerController implements Initializable {
 	    BParkClientApp.exitApplication();
 	}
 	
-	
+
 	/**
 	 * Sends a request to fetch the active parkings.
 	 */
@@ -595,6 +609,16 @@ public class ManagerController implements Initializable {
 			lblCancelledReservations.setText("Cancelled Reservations: " + cancelled);
 
 		});
+	}
+
+	/**
+	 * Open subscriber History
+	 */
+	@FXML
+	private void handleSubscriberIdEnter() {
+		String subscriberId = subscriberIdField.getText();
+		Message msg = new Message(MessageType.GET_PARKING_HISTORY, subscriberId);
+		BParkClientApp.sendMessage(msg);
 	}
 
 }
