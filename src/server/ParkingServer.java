@@ -21,7 +21,7 @@ import entities.ParkingReport;
 import entities.ParkingSubscriber;
 import ocsf.server.AbstractServer;
 import ocsf.server.ConnectionToClient;
-// import serverGUI.ServerPortFrame; // Temporarily commented for core compilation
+import serverGUI.ServerPortFrame; // Temporarily commented for core compilation
 
 /**
  * ||in SERVER||
@@ -48,7 +48,7 @@ public class ParkingServer extends AbstractServer {
 	public static ReportController reportController;
 
 	/** Reference to the server GUI window for displaying client connections. */
-	// public static ServerPortFrame spf; // Temporarily commented for core compilation
+	 public static ServerPortFrame spf; // Temporarily commented for core compilation
 
 	/** Map to track client connections and their statuses. */
 	public Map<String, String> clientsMap = new HashMap<>(); // IP -> status
@@ -553,9 +553,9 @@ public class ParkingServer extends AbstractServer {
 
 		System.out.println("Client connected: " + clientIP);
 
-		// if (spf != null) {
-		//	spf.printConnection(clientsMap);
-		// }
+		 if (spf != null) {
+			spf.printConnection(clientsMap);
+		 }
 	}
 
 	/**
@@ -569,9 +569,9 @@ public class ParkingServer extends AbstractServer {
 		clientsMap.put(clientIP, "ClientIP: " + client.getInetAddress().getHostAddress() + " status: disconnected");
 		System.out.println("Client disconnected: " + clientIP);
 
-		// if (spf != null) {
-		//	spf.printConnection(clientsMap);
-		// }
+		 if (spf != null) {
+			spf.printConnection(clientsMap);
+		 }
 	}
 
 	/**
