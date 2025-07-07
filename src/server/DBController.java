@@ -55,7 +55,6 @@ public class DBController {
 			}
 
 			System.out.println("Database connection established.");
-			System.out.println("Initialized DB connection pool with " + connectionPool.size() + " connections.");
 
 			flag = 1;
 		} catch (Exception e) {
@@ -108,7 +107,6 @@ public class DBController {
 				throw new RuntimeException("Timeout: No available DB connections.");
 			}
 			if (waitCounter % 10 == 0) {
-				System.out.println("Waiting for available DB connection...");
 			}
 			try {
 				wait(100);
@@ -119,7 +117,6 @@ public class DBController {
 		}
 
 		Connection conn = connectionPool.remove();
-		System.out.println("Connection taken. Remaining in pool: " + connectionPool.size());
 		return conn;
 	}
 
@@ -131,7 +128,6 @@ public class DBController {
 	public synchronized void releaseConnection(Connection conn) {
 		if (conn != null) {
 			connectionPool.add(conn);
-			System.out.println("Connection returned. Now available in pool: " + connectionPool.size());
 			notifyAll(); // Wake up waiting threads
 		}
 	}

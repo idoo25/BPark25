@@ -40,15 +40,11 @@ public class SimpleAutoCancellationService {
      */
     public void startService() {
         if (isRunning) {
-            System.out.println("Auto-monitoring service is already running");
             return;
         }
         
         isRunning = true;
         System.out.println("Starting automatic monitoring service...");
-        System.out.println("Checking every minute for:");
-        System.out.println("  - Late preorder reservations (15+ min late = auto-cancel)");
-        System.out.println("  - Late active parkings (15+ min late = notify customer)");
         
         // Schedule to run every minute
         scheduler.scheduleAtFixedRate(() -> {

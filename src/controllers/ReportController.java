@@ -13,30 +13,26 @@ import entities.ParkingReport;
 import server.DBController;
 
 /**
- * ||in SERVER||
- * 
- * ReportController handles report generation for the ParkB parking management
- * system. Updated to work with unified parkinginfo table structure
+ * ReportController handles report generation for the BPark parking management system.
+ * Provides functionality to generate various types of reports including parking time
+ * analysis and subscriber status reports.
  */
 public class ReportController {
 
 	/**
-	 * Initializes the report controller and sets up the database connection.
+	 * Constructs a ReportController and initializes the database connection.
 	 *
-	 * @param dbname the name of the database
-	 * @param pass   the password for the database user
+	 * @param dbname the database name
+	 * @param pass   the database password
 	 */
-
 	public ReportController(String dbname, String pass) {
 		DBController.initializeConnection(dbname, pass);
-//		conn = DBController.getInstance().getConnection();
 	}
 
 	/**
 	 * Retrieves parking reports based on the specified report type.
 	 *
-	 * @param reportType The type of report to generate ("PARKING_TIME",
-	 *                   "SUBSCRIBER_STATUS", or "ALL")
+	 * @param reportType the type of report to generate ("PARKING_TIME", "SUBSCRIBER_STATUS", or "ALL")
 	 * @return ArrayList of ParkingReport objects for the selected type(s)
 	 */
 	public ArrayList<ParkingReport> getParkingReports(String reportType) {
@@ -54,7 +50,6 @@ public class ReportController {
 			reports.add(generateSubscriberStatusReport());
 			break;
 		default:
-			System.out.println("Unknown report type: " + reportType);
 			break;
 		}
 
@@ -96,7 +91,7 @@ public class ReportController {
 			storeMonthlyReports(monthlyReports);
 
 		} catch (Exception e) {
-			System.out.println("Error generating monthly reports: " + e.getMessage());
+			// Return empty list on error
 		}
 
 		return monthlyReports;
@@ -141,7 +136,7 @@ public class ReportController {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Error generating parking time report: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -232,7 +227,7 @@ public class ReportController {
 			}
 
 		} catch (SQLException e) {
-			System.out.println("Error generating subscriber status report: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -285,7 +280,7 @@ public class ReportController {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Error generating monthly parking time report: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -371,7 +366,7 @@ public class ReportController {
 			return report;
 
 		} catch (SQLException e) {
-			System.out.println("Error generating monthly subscriber status report: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -395,9 +390,9 @@ public class ReportController {
 				stmt.setString(2, report.toString()); // Store as JSON or formatted string
 				stmt.executeUpdate();
 			}
-			System.out.println("Monthly reports stored successfully");
+			// Reports stored successfully
 		} catch (SQLException e) {
-			System.out.println("Error storing monthly reports: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -442,7 +437,7 @@ public class ReportController {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Error getting historical reports: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -480,7 +475,7 @@ public class ReportController {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Error: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -513,7 +508,7 @@ public class ReportController {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Error: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -544,7 +539,7 @@ public class ReportController {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Error: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -577,7 +572,7 @@ public class ReportController {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Error: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -604,7 +599,7 @@ public class ReportController {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Error: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -630,7 +625,7 @@ public class ReportController {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Error: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -652,7 +647,7 @@ public class ReportController {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Error: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -688,7 +683,7 @@ public class ReportController {
 			}
 
 		} catch (SQLException e) {
-			System.out.println("Error getting reservations usage data: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -723,7 +718,7 @@ public class ReportController {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Error getting reservations usage data: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
@@ -757,7 +752,7 @@ public class ReportController {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Error getting reservations usage data: " + e.getMessage());
+			// Error handling removed
 		} finally {
 			DBController.getInstance().releaseConnection(conn);
 		}

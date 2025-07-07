@@ -32,7 +32,6 @@ public class ParkingSpotController {
             try (PreparedStatement checkStmt = conn.prepareStatement(checkQry);
                  ResultSet rs = checkStmt.executeQuery()) {
                 if (rs.next() && rs.getInt(1) >= TOTAL_PARKING_SPOTS) {
-                    System.out.println("Parking spots already initialized.");
                     return;
                 }
             }
@@ -44,7 +43,6 @@ public class ParkingSpotController {
                     insertStmt.executeUpdate();
                 }
             }
-            System.out.println("Parking spots initialized successfully.");
             
         } catch (SQLException e) {
             System.err.println("Error initializing parking spots: " + e.getMessage());
