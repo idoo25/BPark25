@@ -15,10 +15,21 @@ import entities.Message.MessageType;
 
 public class LoginController implements Initializable {
     
+
+	/** Text field for entering the subscriber's user name. */
+
     @FXML private TextField txtUsername;
     @FXML private TextField txtUsercode;
+
+    
+    /** Text field for entering the server's IP address. */
     @FXML private TextField txtServerIP;
+    
+    /** Button that triggers the login process. */
     @FXML private Button btnLogin;
+    
+    /** Label used to display status message. */
+
     @FXML private Label lblStatus;
     
     private boolean isConnecting = false;
@@ -53,6 +64,15 @@ public class LoginController implements Initializable {
 	   	 Platform.runLater(() -> txtUsername.requestFocus());
     }
     
+
+    
+    /**
+     * Sends a request to the server to retrieve current parking availability.
+     * <p>
+     * This method is typically triggered from the login screen to provide users who are not yet register
+     * about available parking spots before logging in.
+     */
+
     @FXML
     private void handleCheckAvailability() {
         // Send a request to the server 
@@ -129,7 +149,13 @@ public class LoginController implements Initializable {
     }
     
     /**
-     * Handle Enter key press for quick login
+
+     * Triggered when the Enter key is pressed in the user name or user code fields.
+     * <p>
+     * Allows quick login by pressing Enter instead of clicking the login button.
+     *
+     * @param event The key event triggered by the user.
+
      */
     private void handleEnterKey(KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
@@ -150,7 +176,13 @@ public class LoginController implements Initializable {
     }
     
     /**
-     * Called when login succeeds
+
+     * Handles server response when login is successful.
+     * <p>
+     * Displays a success message and closes the login window.
+     *
+     * @param userType The type of user logged in (subscriber, attendant , manager).
+
      */
     public void handleLoginSuccess(String userType) {
         Platform.runLater(() -> {
