@@ -20,16 +20,13 @@ import client.BParkKioskApp;
 
 public class KioskDashboardController {
 
-    private static String loggedInUsername;
     private static int loggedInUserID;
 
     public static void setLoggedInUser(String username, int userID) {
-        loggedInUsername = username;
         loggedInUserID = userID;
     }
 
     public static void resetLoggedInUser() {
-        loggedInUsername = null;
         loggedInUserID = 0;
     }
 

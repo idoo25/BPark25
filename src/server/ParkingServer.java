@@ -327,7 +327,7 @@ public class ParkingServer extends AbstractServer {
         int enteringUserID = (Integer) message.getContent();
         Message ret;
         if (parkingController.isParkingFull()) {
-            ret = new Message(MessageType.ENTER_PARKING_KIOSK_RESPONSE, "FULL");
+            ret = new Message(MessageType.ENTER_PARKING_KIOSK_RESPONSE, "Parking is Full");
         } else {
             String entryResult = parkingController.enterParking(enteringUserID);
             ret = new Message(MessageType.ENTER_PARKING_KIOSK_RESPONSE, entryResult);
