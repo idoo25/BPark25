@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import client.BParkClientApp;
+import client.BParkClientScenes;
 import entities.Message;
 import entities.Message.MessageType;
 import entities.ParkingOrder;
@@ -62,7 +62,6 @@ public class ManagerController implements Initializable {
 	private TextField UserID;
 	@FXML
 	private TextField subscriberIdField;
-
 
 	// === Subscribers Table ===
 	@FXML
@@ -160,9 +159,7 @@ public class ManagerController implements Initializable {
 	@FXML
 	private Label lblCancelled;
 
-	
-	//@FXML private Button btnExit;
-
+	// @FXML private Button btnExit;
 
 	private Timeline refreshTimeline;
 	private ObservableList<ParkingReport> currentReports = FXCollections.observableArrayList();
@@ -175,7 +172,7 @@ public class ManagerController implements Initializable {
 	 */
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		BParkClientApp.setManagerController(this);
+		BParkClientScenes.setManagerController(this);
 		setupUI();
 		loadInitialData();
 		startAutoRefresh();
@@ -191,7 +188,7 @@ public class ManagerController implements Initializable {
 
 		// Set manager info
 		if (lblManagerInfo != null) {
-			lblManagerInfo.setText("Manager: " + BParkClientApp.getCurrentUser());
+			lblManagerInfo.setText("Manager: " + BParkClientScenes.getCurrentUser());
 		}
 
 		if (tableSubscribers != null) {
@@ -255,7 +252,7 @@ public class ManagerController implements Initializable {
 	@FXML
 	private void handleGenerateMonthlyReports() {
 		Message msg = new Message(MessageType.GENERATE_MONTHLY_REPORTS, 10);
-		BParkClientApp.sendMessage(msg);
+		BParkClientScenes.sendMessage(msg);
 	}
 
 	/**
@@ -268,7 +265,7 @@ public class ManagerController implements Initializable {
 
 		// Also get active parkings for statistics
 		Message activeMsg = new Message(MessageType.GET_ACTIVE_PARKINGS, null);
-		BParkClientApp.sendMessage(activeMsg);
+		BParkClientScenes.sendMessage(activeMsg);
 	}
 
 	/**
@@ -278,7 +275,7 @@ public class ManagerController implements Initializable {
 	 */
 	private void loadReports(String type) {
 		Message msg = new Message(MessageType.MANAGER_GET_REPORTS, type);
-		BParkClientApp.sendMessage(msg);
+		BParkClientScenes.sendMessage(msg);
 	}
 
 	// ===== UI Update Methods =====
@@ -383,17 +380,15 @@ public class ManagerController implements Initializable {
 	 */
 	@FXML
 	private void handleLogout() {
-	    // Return to login screen instead of closing
-	    BParkClientApp.returnToLogin();
+		// Return to login screen instead of closing
+		BParkClientScenes.returnToLogin();
 	}
 
-	
 	@FXML
 	private void handleExit() {
-	    // This maintains the old logout behavior (exit application)
-	    BParkClientApp.exitApplication();
+		// This maintains the old logout behavior (exit application)
+		BParkClientScenes.exitApplication();
 	}
-	
 
 	/**
 	 * Sends a request to fetch the active parkings.
@@ -401,7 +396,7 @@ public class ManagerController implements Initializable {
 	@FXML
 	private void loadActiveParkings() {
 		Message msg = new Message(MessageType.GET_ACTIVE_PARKINGS, null);
-		BParkClientApp.sendMessage(msg);
+		BParkClientScenes.sendMessage(msg);
 	}
 
 	/**
@@ -413,7 +408,7 @@ public class ManagerController implements Initializable {
 		if (selectedOrder != null) {
 			String subscriberName = selectedOrder.getSubscriberName();
 			Message msg = new Message(MessageType.GET_SUBSCRIBER_BY_NAME, subscriberName);
-			BParkClientApp.sendMessage(msg);
+			BParkClientScenes.sendMessage(msg);
 		} else {
 			showAlert("Selection Required", "Please select a parking session from the table");
 		}
@@ -481,7 +476,7 @@ public class ManagerController implements Initializable {
 	@FXML
 	private void loadSubscribers() {
 		Message msg = new Message(MessageType.GET_ALL_SUBSCRIBERS, null);
-		BParkClientApp.sendMessage(msg);
+		BParkClientScenes.sendMessage(msg);
 	}
 
 	/**
@@ -618,7 +613,7 @@ public class ManagerController implements Initializable {
 	private void handleSubscriberIdEnter() {
 		String subscriberId = subscriberIdField.getText();
 		Message msg = new Message(MessageType.GET_PARKING_HISTORY, subscriberId);
-		BParkClientApp.sendMessage(msg);
+		BParkClientScenes.sendMessage(msg);
 	}
 
 }

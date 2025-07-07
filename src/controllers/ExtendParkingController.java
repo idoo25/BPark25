@@ -1,6 +1,6 @@
 package controllers;
 
-import client.BParkClientApp;
+import client.BParkClientScenes;
 import entities.Message;
 import entities.Message.MessageType;
 import javafx.fxml.FXML;
@@ -88,7 +88,7 @@ public class ExtendParkingController {
         String extensionData = code + "," + hours;
         // Create and send the extension request message
         Message msg = new Message(MessageType.REQUEST_EXTENSION, extensionData);
-        BParkClientApp.sendMessage(msg);
+        BParkClientScenes.sendMessage(msg);
         
       
         

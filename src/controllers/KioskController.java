@@ -5,7 +5,7 @@ import static entities.Message.MessageType.KIOSK_RF_LOGIN;
 
 import java.util.Optional;
 
-import client.BParkKioskApp;
+import client.BParkKioskScenes;
 import entities.Message;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -43,7 +43,7 @@ public class KioskController {
     private void handleCheckAvailability() {
         // Send a request to the server 
         Message checkMsg = new Message(Message.MessageType.CHECK_PARKING_AVAILABILITY, null);
-        BParkKioskApp.sendMessage(checkMsg);
+        BParkKioskScenes.sendMessage(checkMsg);
         
     }
     
@@ -99,7 +99,7 @@ public class KioskController {
                 try {
                     int userID = Integer.parseInt(userIDStr);
                     Message msg = new Message(KIOSK_ID_LOGIN, username + "," + userID);
-                    BParkKioskApp.sendMessage(msg);
+                    BParkKioskScenes.sendMessage(msg);
                 } catch (NumberFormatException e) {
                     showAlert("Invalid Input", "User ID must be numeric.");
                 }
@@ -119,7 +119,7 @@ public class KioskController {
             try {
                 int userID = Integer.parseInt(idStr);
                 Message msg = new Message(KIOSK_RF_LOGIN, userID);
-                BParkKioskApp.sendMessage(msg);
+                BParkKioskScenes.sendMessage(msg);
             } catch (NumberFormatException e) {
                 showAlert("Invalid Input", "Please enter a valid numeric User ID.");
             }

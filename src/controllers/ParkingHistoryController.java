@@ -427,8 +427,8 @@ public class ParkingHistoryController implements Initializable {
     private void handleRefresh() {
         updateStatus("Refreshing...");
         // Send request for updated parking history
-        client.BParkClientApp.sendMessage(new entities.Message(entities.Message.MessageType.GET_PARKING_HISTORY, 
-                                           client.BParkClientApp.getCurrentUser()));
+        client.BParkClientScenes.sendMessage(new entities.Message(entities.Message.MessageType.GET_PARKING_HISTORY, 
+                                           client.BParkClientScenes.getCurrentUser()));
     }
 
     /**

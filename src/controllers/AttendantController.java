@@ -3,7 +3,7 @@ package controllers;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import client.BParkClientApp;
+import client.BParkClientScenes;
 import entities.Message;
 import entities.Message.MessageType;
 import entities.ParkingOrder;
@@ -30,7 +30,7 @@ import javafx.util.Duration;
  *
  * Controller class for the Attendant Dashboard in the BPARK client application.
  * Handles active parking management, subscriber registration, and real-time
- * updates. Communicates with the server via BParkClientApp messaging.
+ * updates. Communicates with the server via BParkClientScenes messaging.
  */
 public class AttendantController implements Initializable {
 
@@ -99,9 +99,9 @@ public class AttendantController implements Initializable {
 	private TextField txtAssistCode;
 	@FXML
 	private ComboBox<String> comboAssistAction;
-	
-	@FXML private Button btnExit;
 
+	@FXML
+	private Button btnExit;
 
 	private ObservableList<ParkingOrder> activeParkings = FXCollections.observableArrayList();
 
@@ -126,7 +126,7 @@ public class AttendantController implements Initializable {
 	 */
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		BParkClientApp.setAttendantController(this);
+		BParkClientScenes.setAttendantController(this);
 		setupUI();
 		loadActiveParkings();
 		loadSubscribers();
@@ -333,12 +333,12 @@ public class AttendantController implements Initializable {
 			return;
 		}
 
-		String registrationData = String.format("%s,%s,%s,%s,%s,%s", BParkClientApp.getCurrentUser(),
+		String registrationData = String.format("%s,%s,%s,%s,%s,%s", BParkClientScenes.getCurrentUser(),
 				txtName.getText().trim(), txtPhone.getText().trim(), txtEmail.getText().trim(),
 				txtCarNumber.getText().trim(), txtUsername.getText().trim());
 
 		Message msg = new Message(MessageType.REGISTER_SUBSCRIBER, registrationData);
-		BParkClientApp.sendMessage(msg);
+		BParkClientScenes.sendMessage(msg);
 	}
 
 	/**
@@ -362,7 +362,7 @@ public class AttendantController implements Initializable {
 	@FXML
 	private void loadActiveParkings() {
 		Message msg = new Message(MessageType.GET_ACTIVE_PARKINGS, null);
-		BParkClientApp.sendMessage(msg);
+		BParkClientScenes.sendMessage(msg);
 	}
 
 	/**
@@ -371,7 +371,7 @@ public class AttendantController implements Initializable {
 	@FXML
 	private void loadSubscribers() {
 		Message msg = new Message(MessageType.GET_ALL_SUBSCRIBERS, null);
-		BParkClientApp.sendMessage(msg);
+		BParkClientScenes.sendMessage(msg);
 	}
 
 	/**
@@ -392,14 +392,14 @@ public class AttendantController implements Initializable {
 	 */
 	@FXML
 	private void handleLogout() {
-	    // Return to login screen instead of closing
-	    BParkClientApp.returnToLogin();
+		// Return to login screen instead of closing
+		BParkClientScenes.returnToLogin();
 	}
-	
+
 	@FXML
 	private void handleExit() {
-	    // This maintains the old logout behavior (exit application)
-	    BParkClientApp.exitApplication();
+		// This maintains the old logout behavior (exit application)
+		BParkClientScenes.exitApplication();
 	}
 
 	/**
@@ -409,6 +409,6 @@ public class AttendantController implements Initializable {
 	private void handleSubscriberIdEnter() {
 		String subscriberId = subscriberIdField.getText();
 		Message msg = new Message(MessageType.GET_PARKING_HISTORY, subscriberId);
-		BParkClientApp.sendMessage(msg);
+		BParkClientScenes.sendMessage(msg);
 	}
 }
