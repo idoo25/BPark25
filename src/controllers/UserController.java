@@ -80,7 +80,7 @@ public class UserController {
                     subscriber.setFirstName(rs.getString("Name"));
                     subscriber.setPhoneNumber(rs.getString("Phone"));
                     subscriber.setEmail(rs.getString("Email"));
-                    subscriber.setCarNumber(rs.getString("CarNumber"));
+                    subscriber.setCarNumber(rs.getString("CarNum"));
                     subscriber.setSubscriberCode(rs.getString("UserName"));
                     subscriber.setUserType(rs.getString("UserTypeEnum"));
                     return subscriber;
@@ -113,7 +113,7 @@ public class UserController {
                     subscriber.setFirstName(rs.getString("Name"));
                     subscriber.setPhoneNumber(rs.getString("Phone"));
                     subscriber.setEmail(rs.getString("Email"));
-                    subscriber.setCarNumber(rs.getString("CarNumber"));
+                    subscriber.setCarNumber(rs.getString("CarNum"));
                     subscriber.setSubscriberCode(rs.getString("UserName"));
                     subscriber.setUserType(rs.getString("UserTypeEnum"));
                     return subscriber;
@@ -142,7 +142,7 @@ public class UserController {
                     subscriber.setFirstName(rs.getString("Name"));
                     subscriber.setPhoneNumber(rs.getString("Phone"));
                     subscriber.setEmail(rs.getString("Email"));
-                    subscriber.setCarNumber(rs.getString("CarNumber"));
+                    subscriber.setCarNumber(rs.getString("CarNum"));
                     subscriber.setSubscriberCode(rs.getString("UserName"));
                     subscriber.setUserType(rs.getString("UserTypeEnum"));
                     subscribers.add(subscriber);
@@ -219,7 +219,7 @@ public class UserController {
         }
 
         Connection conn = DBController.getInstance().getConnection();
-        String insertQry = "INSERT INTO users (Name, Phone, Email, CarNumber, UserName, UserTypeEnum) VALUES (?, ?, ?, ?, ?, 'sub')";
+        String insertQry = "INSERT INTO users (Name, Phone, Email, CarNum, UserName, UserTypeEnum) VALUES (?, ?, ?, ?, ?, 'sub')";
         
         try (PreparedStatement stmt = conn.prepareStatement(insertQry, PreparedStatement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, name);
@@ -273,7 +273,7 @@ public class UserController {
         }
 
         Connection conn = DBController.getInstance().getConnection();
-        String updateQry = "UPDATE users SET Name = ?, Phone = ?, Email = ?, CarNumber = ?, UserName = ? WHERE UserName = ?";
+        String updateQry = "UPDATE users SET Name = ?, Phone = ?, Email = ?, CarNum = ?, UserName = ? WHERE UserName = ?";
         
         try (PreparedStatement stmt = conn.prepareStatement(updateQry)) {
             stmt.setString(1, newName);
