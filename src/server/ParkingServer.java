@@ -33,6 +33,7 @@ import serverGUI.ServerPortFrame;
  */
 public class ParkingServer extends AbstractServer {
 
+
 	/** Default port number for the server. */
 	final public static Integer DEFAULT_PORT = 5555;
 
@@ -567,5 +568,6 @@ public class ParkingServer extends AbstractServer {
 			System.out.println("ERROR - Could not listen for clients!");
 		}
 	}
+
 
 }
