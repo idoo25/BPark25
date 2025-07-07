@@ -12,7 +12,7 @@ import java.util.List;
 import entities.ParkingOrder;
 import entities.ParkingSubscriber;
 import server.DBController;
-import services.EmailServiceStub;
+import services.EmailService;
 
 /**
  * Simplified ParkingController that coordinates other controllers and handles core parking operations.
@@ -234,7 +234,7 @@ public class ParkingController {
                     int parkingCode = rs.getInt("ParkingInfo_ID");
                     
                     // Send email with parking code
-                    EmailServiceStub.sendParkingCodeRecovery(user.getEmail(), user.getFirstName(), String.valueOf(parkingCode));
+                    EmailService.sendParkingCodeRecovery(user.getEmail(), user.getFirstName(), String.valueOf(parkingCode));
                     
                     return "SUCCESS: Your parking code is: " + parkingCode + ". Recovery email sent to " + user.getEmail();
                 } else {
@@ -371,8 +371,8 @@ public class ParkingController {
                         int updated = updateStmt.executeUpdate();
                         if (updated > 0) {
                             // Send confirmation email
-                            EmailServiceStub.sendExtensionConfirmation(userEmail, userName, 
-                                "Parking code: " + parkingCode, additionalHours, "hours");
+                            EmailService.sendExtensionConfirmation(userEmail, userName, 
+                                String.valueOf(parkingCode), additionalHours, "Extended by " + additionalHours + " hours");
                             
                             return "SUCCESS: Parking extended by " + additionalHours + " hours";
                         }

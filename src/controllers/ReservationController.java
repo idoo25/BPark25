@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import entities.ParkingOrder;
 import entities.ParkingSubscriber;
 import server.DBController;
-import services.EmailServiceStub;
+import services.EmailService;
 
 /**
  * ReservationController handles all reservation-related operations following the Single Responsibility Principle.
@@ -84,10 +84,9 @@ public class ReservationController {
                         int reservationCode = generatedKeys.getInt(1);
                         
                         // Send confirmation email
-                        String reservationDetails = String.format("Date: %s, Spot: %d", 
-                            reservationTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")), spotId);
-                        EmailServiceStub.sendReservationConfirmation(user.getEmail(), user.getFirstName(),
-                            reservationDetails, String.valueOf(reservationCode), "4 hours");
+                        String formattedDate = reservationTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+                        EmailService.sendReservationConfirmation(user.getEmail(), user.getFirstName(),
+                            String.valueOf(reservationCode), formattedDate, String.valueOf(spotId));
                         
                         return "SUCCESS: Reservation made. Code: " + reservationCode;
                     }
@@ -135,7 +134,7 @@ public class ReservationController {
                     
                     if (deleted > 0) {
                         // Send cancellation email
-                        EmailServiceStub.sendReservationCancelled(userEmail, fullName, String.valueOf(reservationCode));
+                        EmailService.sendReservationCancelled(userEmail, fullName, String.valueOf(reservationCode));
                         return "SUCCESS: Reservation cancelled successfully";
                     }
                 }
