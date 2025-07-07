@@ -50,7 +50,7 @@ public class ParkingOrder implements Serializable {
     /**
      *  estimated Start Time for the parking session.
      */
-     private LocalDateTim estimatedStartTime;
+     private LocalDateTime estimatedStartTime;
 
     /**
      * Flag indicating whether the vehicle exited late (past expected exit time).
