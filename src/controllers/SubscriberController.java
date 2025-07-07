@@ -68,6 +68,10 @@ public class SubscriberController implements Initializable {
     // Current view container
     @FXML private VBox mainContent;
     
+    
+    
+    @FXML private Button btnExit;
+    
     private static boolean manualCheckRequested = false;
     
     
@@ -282,17 +286,14 @@ public class SubscriberController implements Initializable {
     
     @FXML
     private void handleLogout() {
-        // Send logout notification
-        BParkClientApp.sendStringMessage("LoggedOut " + BParkClientApp.getCurrentUser());
-        
-        // Close connection and return to login
-        try {
-            // Close current window and show login again
-            btnLogout.getScene().getWindow().hide();
-            // The main app should handle showing login screen again
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // Return to login screen instead of closing
+        BParkClientApp.returnToLogin();
+    }
+    
+    @FXML
+    private void handleExit() {
+        // This maintains the old logout behavior (exit application)
+        BParkClientApp.exitApplication();
     }
     
     @FXML

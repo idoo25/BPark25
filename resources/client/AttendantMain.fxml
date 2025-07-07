@@ -36,6 +36,8 @@
 				<Button text="Refresh" onAction="#loadActiveParkings" />
 				<Button fx:id="btnLogout" text="Logout"
 					onAction="#handleLogout" styleClass="logout-button" />
+				<Button fx:id="btnExit" text="Exit"
+					onAction="#handleExit" styleClass="exit-button" />
 			</HBox>
 		</VBox>
 	</top>
