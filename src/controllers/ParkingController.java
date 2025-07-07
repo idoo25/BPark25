@@ -16,7 +16,7 @@ import java.util.List;
 import entities.ParkingOrder;
 import entities.ParkingSubscriber;
 import server.DBController;
-import services.EmailService;
+import services.EmailServiceStub;
 
 /**
  * Enhanced ParkingController with email notifications Updated to work with
@@ -477,7 +477,7 @@ public class ParkingController {
 						if (user != null && user.getEmail() != null) {
 							String formattedDateTime = reservationDateTime
 									.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-							EmailService.sendReservationConfirmation(user.getEmail(), user.getFirstName(),
+							EmailServiceStub.sendReservationConfirmation(user.getEmail(), user.getFirstName(),
 									String.valueOf(reservationCode), formattedDateTime, "Spot " + parkingSpotID);
 						}
 
@@ -677,7 +677,7 @@ public class ParkingController {
 					String name = rs.getString("Name");
 
 					// Send recovery email
-					EmailService.sendParkingCodeRecovery(email, name, String.valueOf(parkingCode));
+					EmailServiceStub.sendParkingCodeRecovery(email, name, String.valueOf(parkingCode));
 
 					return "Your active parking code is: " + parkingCode;
 				}
@@ -878,8 +878,8 @@ public class ParkingController {
 				System.out.println("New subscriber registered: " + userName + " with User_ID: " + userID);
 
 				// SEND EMAIL NOTIFICATIONS with User_ID
-				EmailService.sendRegistrationConfirmation(email, name, userName, userID);
-				EmailService.sendWelcomeMessage(email, name, userName, userID);
+				EmailServiceStub.sendRegistrationConfirmation(email, name, userName, userID);
+				EmailServiceStub.sendWelcomeMessage(email, name, userName, userID);
 
 				return "SUCCESS:Subscriber registered successfully. Username: " + userName + ", User ID: " + userID;
 			}
@@ -1004,7 +1004,7 @@ public class ParkingController {
 					String name = rs.getString("Name");
 
 					// SEND EMAIL NOTIFICATION
-					EmailService.sendParkingCodeRecovery(email, name, String.valueOf(parkingCode));
+					EmailServiceStub.sendParkingCodeRecovery(email, name, String.valueOf(parkingCode));
 
 					return String.valueOf(parkingCode);
 				}
@@ -1166,7 +1166,7 @@ public class ParkingController {
 
 				// SEND EMAIL NOTIFICATION
 				if (userEmail != null && userName != null) {
-					EmailService.sendReservationCancelled(userEmail, userName, String.valueOf(reservationCode));
+					EmailServiceStub.sendReservationCancelled(userEmail, userName, String.valueOf(reservationCode));
 				}
 
 				return "Reservation cancelled successfully";
@@ -1439,7 +1439,7 @@ public class ParkingController {
 							// Send email notification
 							ParkingSubscriber user = getUserInfo(getUserNameByID(userID));
 							if (user != null && user.getEmail() != null) {
-								EmailService.sendExtensionConfirmation(user.getEmail(), user.getFirstName(), 
+								EmailServiceStub.sendExtensionConfirmation(user.getEmail(), user.getFirstName(), 
 									parkingCodeStr, maxExtensionHours, newEndTime.toString());
 							}
 							
@@ -1557,7 +1557,7 @@ public class ParkingController {
 					String name = rs.getString("Name");
 
 					// SEND EMAIL NOTIFICATION
-					EmailService.sendLatePickupNotification(email, name);
+					EmailServiceStub.sendLatePickupNotification(email, name);
 				}
 			}
 		} catch (SQLException e) {
@@ -1663,7 +1663,7 @@ public class ParkingController {
 
 				// Send email notification
 				if (userEmail != null && userName != null) {
-					EmailService.sendReservationCancelled(userEmail, userName, String.valueOf(reservationCode));
+					EmailServiceStub.sendReservationCancelled(userEmail, userName, String.valueOf(reservationCode));
 				}
 
 				System.out.println("Reservation " + reservationCode + " cancelled (" + currentStatus
@@ -1798,7 +1798,7 @@ public class ParkingController {
 
 							try {
 								if (userEmail != null && userName != null) {
-									EmailService.sendExtensionConfirmation(userEmail, userName, parkingCodeStr,
+									EmailServiceStub.sendExtensionConfirmation(userEmail, userName, parkingCodeStr,
 											additionalHours, newEstimatedEnd.toString());
 								}
 							} catch (Exception e) {
@@ -2258,7 +2258,7 @@ public class ParkingController {
 					ParkingSubscriber user = getUserInfo(userName);
 					if (user != null && user.getEmail() != null) {
 						String formattedDateTime = startTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-						EmailService.sendReservationConfirmation(user.getEmail(), user.getFirstName(),
+						EmailServiceStub.sendReservationConfirmation(user.getEmail(), user.getFirstName(),
 								String.valueOf(reservationCode), formattedDateTime, "Spot " + spotId);
 					}
 					

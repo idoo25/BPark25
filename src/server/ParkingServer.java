@@ -21,7 +21,7 @@ import entities.ParkingReport;
 import entities.ParkingSubscriber;
 import ocsf.server.AbstractServer;
 import ocsf.server.ConnectionToClient;
-import serverGUI.ServerPortFrame;
+// import serverGUI.ServerPortFrame; // Temporarily commented for core compilation
 
 /**
  * ||in SERVER||
@@ -30,9 +30,13 @@ import serverGUI.ServerPortFrame;
  * connections and handles message processing, routing requests to appropriate
  * controller classes. Supports handling kiosk operations, subscriber logins,
  * reservations, parking history, reports, and system shutdown.
+ * 
+ * Follows the Singleton pattern to ensure only one server instance exists.
  */
 public class ParkingServer extends AbstractServer {
 
+	/** Singleton instance of ParkingServer */
+	private static ParkingServer instance = null;
 
 	/** Default port number for the server. */
 	final public static Integer DEFAULT_PORT = 5555;
@@ -44,7 +48,7 @@ public class ParkingServer extends AbstractServer {
 	public static ReportController reportController;
 
 	/** Reference to the server GUI window for displaying client connections. */
-	public static ServerPortFrame spf;
+	// public static ServerPortFrame spf; // Temporarily commented for core compilation
 
 	/** Map to track client connections and their statuses. */
 	public Map<String, String> clientsMap = new HashMap<>(); // IP -> status
@@ -53,18 +57,44 @@ public class ParkingServer extends AbstractServer {
 	public static String serverIp;
 
 	/**
-	 * Constructs a new ParkingServer on the given port.
+	 * Private constructor for singleton pattern. Constructs a new ParkingServer on the given port.
 	 *
 	 * @param port the port number to listen on.
 	 */
-	public ParkingServer(int port) {
+	private ParkingServer(int port) {
 		super(port);
 		try {
 			serverIp = InetAddress.getLocalHost().getHostAddress() + ":" + port;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
 
+	/**
+	 * Returns the singleton instance of ParkingServer. Creates a new instance with 
+	 * the specified port if none exists.
+	 *
+	 * @param port the port number to listen on
+	 * @return the singleton ParkingServer instance
+	 */
+	public static synchronized ParkingServer getInstance(int port) {
+		if (instance == null) {
+			instance = new ParkingServer(port);
+		}
+		return instance;
+	}
+
+	/**
+	 * Returns the singleton instance of ParkingServer using the default port.
+	 *
+	 * @return the singleton ParkingServer instance
+	 * @throws IllegalStateException if no instance exists
+	 */
+	public static ParkingServer getInstance() {
+		if (instance == null) {
+			throw new IllegalStateException("ParkingServer not initialized. Call getInstance(port) first.");
+		}
+		return instance;
 	}
 
 	/**
@@ -512,9 +542,9 @@ public class ParkingServer extends AbstractServer {
 
 		System.out.println("Client connected: " + clientIP);
 
-		if (spf != null) {
-			spf.printConnection(clientsMap);
-		}
+		// if (spf != null) {
+		//	spf.printConnection(clientsMap);
+		// }
 	}
 
 	/**
@@ -528,9 +558,9 @@ public class ParkingServer extends AbstractServer {
 		clientsMap.put(clientIP, "ClientIP: " + client.getInetAddress().getHostAddress() + " status: disconnected");
 		System.out.println("Client disconnected: " + clientIP);
 
-		if (spf != null) {
-			spf.printConnection(clientsMap);
-		}
+		// if (spf != null) {
+		//	spf.printConnection(clientsMap);
+		// }
 	}
 
 	/**
@@ -560,7 +590,7 @@ public class ParkingServer extends AbstractServer {
 			port = DEFAULT_PORT;
 		}
 
-		ParkingServer sv = new ParkingServer(port);
+		ParkingServer sv = ParkingServer.getInstance(port);
 
 		try {
 			sv.listen();
