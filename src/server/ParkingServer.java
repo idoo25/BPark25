@@ -98,6 +98,17 @@ public class ParkingServer extends AbstractServer {
 	}
 
 	/**
+	 * Initializes the controllers with database connection
+	 *
+	 * @param dbName the database name
+	 * @param password the database password
+	 */
+	public static void initializeControllers(String dbName, String password) {
+		parkingController = new ParkingController(dbName, password);
+		reportController = new ReportController(dbName, password);
+	}
+
+	/**
 	 * Handles all incoming messages from clients.
 	 *
 	 * @param msg    the received message object.
