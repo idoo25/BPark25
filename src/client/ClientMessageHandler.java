@@ -1,15 +1,20 @@
 package client;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import controllers.AttendantController;
 import controllers.ExtendParkingController;
+import controllers.KioskController;
 import controllers.LoginController;
 import controllers.ManagerController;
-import controllers.UpdateProfileController;
 import controllers.ParkingHistoryController;
+import controllers.UpdateProfileController;
 import entities.Message;
 import entities.ParkingOrder;
 import entities.ParkingReport;
@@ -22,7 +27,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import controllers.KioskController;
 
 public class ClientMessageHandler {
 	

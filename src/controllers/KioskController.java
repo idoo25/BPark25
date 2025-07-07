@@ -1,23 +1,29 @@
 package controllers;
 
-import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
-import javafx.util.Pair;
-import javafx.geometry.Insets;
+import static entities.Message.MessageType.KIOSK_ID_LOGIN;
+import static entities.Message.MessageType.KIOSK_RF_LOGIN;
 
 import java.util.Optional;
 
-import entities.Message;
-import static entities.Message.MessageType.*;
-
-import client.BParkClientApp;
 import client.BParkKioskApp;
+import entities.Message;
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+import javafx.util.Pair;
 
 public class KioskController {
 

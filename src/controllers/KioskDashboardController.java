@@ -1,22 +1,24 @@
 package controllers;
 
+import static entities.Message.MessageType.ACTIVATE_RESERVATION_KIOSK;
+import static entities.Message.MessageType.ENTER_PARKING_KIOSK;
+import static entities.Message.MessageType.FORGOT_CODE_KIOSK;
+import static entities.Message.MessageType.RETRIEVE_CAR_KIOSK;
+
+import java.util.Optional;
+
+import client.BParkKioskApp;
+import entities.Message;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
-import javafx.scene.Node;
-import javafx.event.ActionEvent;
-
-import entities.Message;
-import static entities.Message.MessageType.*;
-
-import java.util.Optional;
-
-import client.BParkKioskApp;
 
 public class KioskDashboardController {
 

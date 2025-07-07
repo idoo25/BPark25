@@ -3,8 +3,6 @@ package controllers;
 
 
 import client.BParkClientApp;
-
-
 import entities.Message;
 import entities.Message.MessageType;
 import javafx.fxml.FXML;

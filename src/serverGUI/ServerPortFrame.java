@@ -3,6 +3,8 @@ package serverGUI;
 import java.util.Collection;
 import java.util.Map;
 
+import controllers.ParkingController;
+import controllers.ReportController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -14,10 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import ocsf.server.ConnectionToClient;
 import server.ParkingServer;
-import controllers.ParkingController;
-import controllers.ReportController;
 import server.ServerUI;
 
 /**

@@ -1,10 +1,12 @@
 package controllers;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import client.BParkClientApp;
 import entities.Message;
 import entities.Message.MessageType;
+import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 
 /**
  * Controller class for handling the parking extension feature in the JavaFX GUI.

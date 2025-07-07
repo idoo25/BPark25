@@ -496,7 +496,7 @@ public class ParkingController {
 			}
 		} catch (SQLException e) {
 			System.out.println("Error handling reservation entry: " + e.getMessage());
-		} finally {
+		}finally {
 			DBController.getInstance().releaseConnection(conn);
 		}
 		return "Invalid reservation code or reservation not in preorder status.";
@@ -726,7 +726,6 @@ public class ParkingController {
 
 		// Insert new subscriber
 		String insertQry = "INSERT INTO users (UserName, Name, Phone, Email, CarNum, UserTypeEnum) VALUES (?, ?, ?, ?, ?, 'sub')";
-		conn = DBController.getInstance().getConnection();
 		try (PreparedStatement stmt = conn.prepareStatement(insertQry, PreparedStatement.RETURN_GENERATED_KEYS)) {
 			stmt.setString(1, userName);
 			stmt.setString(2, name);
@@ -1247,7 +1246,7 @@ public class ParkingController {
 				SET statusEnum = 'cancelled'
 				WHERE ParkingInfo_ID = ? AND statusEnum IN ('preorder', 'active')
 				""";
-		conn = DBController.getInstance().getConnection();
+
 		try (PreparedStatement stmt = conn.prepareStatement(qry)) {
 			stmt.setInt(1, reservationCode);
 			int rowsUpdated = stmt.executeUpdate();
