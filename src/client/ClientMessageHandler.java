@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import client.BParkClientScenes;
 import controllers.AttendantController;
 import controllers.ExtendParkingController;
 import controllers.KioskController;
@@ -241,6 +242,11 @@ public class ClientMessageHandler {
 	private static void handleParkingHistory(Message message) {
 		ArrayList<ParkingOrder> history = (ArrayList<ParkingOrder>) message.getContent();
 		System.out.println("Received " + history.size() + " parking records");
+		
+		// Open the parking history window with the received data
+		Platform.runLater(() -> {
+			BParkClientScenes.showParkingHistoryWindow(history);
+		});
 	}
 
 	@SuppressWarnings("unchecked")
